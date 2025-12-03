@@ -67,6 +67,7 @@ $result_bank = $conn->query($sql_bank);
                             <span class="badge bg-secondary"><?php echo htmlspecialchars($person['pessoa_situacao_desc']); ?></span>
                         </div>
                         <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-primary w-100 mb-3"><i class="bi bi-pencil-square me-2"></i>Editar Cadastro</a>
+<a href="delete.php?id=<?php echo $id; ?>" class="btn btn-danger w-100 mb-3 ms-2" onclick="return confirm('Tem certeza que deseja excluir esta pessoa?');"><i class="bi bi-trash me-2"></i>Excluir Cadastro</a>
                         
                         <ul class="list-group list-group-flush text-start mt-3">
                             <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($person['pessoa_email']); ?></li>
@@ -121,7 +122,10 @@ $result_bank = $conn->query($sql_bank);
                 </div>
 
                 <!-- Bank Accounts -->
-                <div class="card shadow-sm border-0">
+                <div class="d-flex justify-content-between mb-3">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="bi bi-plus-circle me-2"></i>Adicionar Conta Bancária</button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="bi bi-file-earmark-arrow-down me-2"></i>Exportar Contas</button>
+</div>
                     <div class="card-body">
                         <h4 class="section-title"><i class="bi bi-bank me-2"></i>Contas Bancárias</h4>
                         <div class="table-responsive">
@@ -129,8 +133,9 @@ $result_bank = $conn->query($sql_bank);
                                 <thead class="table-light">
                                     <tr>
                                         <th>Banco</th>
-                                        <th>Agência</th>
                                         <th>Gerente</th>
+                                        <th>Agência</th>
+                                        <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -138,12 +143,24 @@ $result_bank = $conn->query($sql_bank);
                                         <?php while($bank = $result_bank->fetch_assoc()): ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($bank['banco']); ?></td>
-                                            <td><?php echo htmlspecialchars($bank['agencia']); ?></td>
                                             <td><?php echo htmlspecialchars($bank['gerente']); ?></td>
+                                            <td><?php echo htmlspecialchars($bank['agencia']); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editAccountModal"
+                                                    data-bank-id="<?php echo $bank['idpessoas_conta_bancarias']; ?>"
+                                                    data-banco="<?php echo htmlspecialchars($bank['banco']); ?>"
+                                                    data-agencia="<?php echo htmlspecialchars($bank['agencia']); ?>"
+                                                    data-gerente="<?php echo htmlspecialchars($bank['gerente']); ?>">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <a href="delete_bank.php?id=<?php echo $id; ?>&bank_id=<?php echo $bank['idpessoas_conta_bancarias']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta conta?');"><i class="bi bi-trash"></i></a>
+                                            </td>
                                         </tr>
                                         <?php endwhile; ?>
                                     <?php else: ?>
-                                        <tr><td colspan="3" class="text-center text-muted">Nenhuma conta bancária cadastrada.</td></tr>
+                                        <tr><td colspan="4" class="text-center text-muted">Nenhuma conta bancária cadastrada.</td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -154,6 +171,112 @@ $result_bank = $conn->query($sql_bank);
         </div>
     </div>
 
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Exportar Contas Bancárias</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Deseja exportar todas as contas bancárias desta pessoa para um arquivo CSV?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <a href="export_bank.php?id=<?php echo $id; ?>" class="btn btn-primary">Exportar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Account Modal -->
+    <div class="modal fade" id="editAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Conta Bancária</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="update_bank.php" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="id" value="<?php echo $id; ?>">
+                        <input type="hidden" name="bank_id" id="edit_bank_id">
+                        <div class="mb-3">
+                            <label for="edit_banco" class="form-label">Banco</label>
+                            <input type="text" class="form-control" id="edit_banco" name="banco" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_agencia" class="form-label">Agência</label>
+                            <input type="text" class="form-control" id="edit_agencia" name="agencia" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_gerente" class="form-label">Gerente</label>
+                            <input type="text" class="form-control" id="edit_gerente" name="gerente" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Account Modal -->
+    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Conta Bancária</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="insert_bank.php" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="id" value="<?php echo $id; ?>">
+                        <div class="mb-3">
+                            <label for="add_banco" class="form-label">Banco</label>
+                            <input type="text" class="form-control" id="add_banco" name="banco" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_agencia" class="form-label">Agência</label>
+                            <input type="text" class="form-control" id="add_agencia" name="agencia" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_gerente" class="form-label">Gerente</label>
+                            <input type="text" class="form-control" id="add_gerente" name="gerente" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const editAccountModal = document.getElementById('editAccountModal');
+        editAccountModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            const bankId = button.getAttribute('data-bank-id');
+            const banco = button.getAttribute('data-banco');
+            const agencia = button.getAttribute('data-agencia');
+            const gerente = button.getAttribute('data-gerente');
+
+            const modalBodyInputId = editAccountModal.querySelector('#edit_bank_id');
+            const modalBodyInputBanco = editAccountModal.querySelector('#edit_banco');
+            const modalBodyInputAgencia = editAccountModal.querySelector('#edit_agencia');
+            const modalBodyInputGerente = editAccountModal.querySelector('#edit_gerente');
+
+            modalBodyInputId.value = bankId;
+            modalBodyInputBanco.value = banco;
+            modalBodyInputAgencia.value = agencia;
+            modalBodyInputGerente.value = gerente;
+        });
+    </script>
 </body>
 </html>

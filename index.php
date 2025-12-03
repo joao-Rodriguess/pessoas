@@ -1,6 +1,12 @@
 <?php include 'db.php'; ?>
+<?php
+if (isset($_GET['msg']) && $_GET['msg'] == 'deleted') {
+    echo "<div class='alert alert-success'>Pessoa excluída com sucesso.</div>";
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container">
@@ -23,7 +30,8 @@
                 <p class="text-muted">Visualize e gerencie as pessoas cadastradas no sistema.</p>
             </div>
             <div class="col-md-6 text-md-end">
-                <a href="cadastro.php" class="btn btn-success btn-lg"><i class="bi bi-plus-circle me-2"></i>Novo Cadastro</a>
+                <a href="cadastro.php" class="btn btn-success btn-lg"><i class="bi bi-plus-circle me-2"></i>Novo
+                    Cadastro</a>
             </div>
         </div>
 
@@ -33,8 +41,11 @@
                 <form action="index.php" method="GET" class="row g-3">
                     <div class="col-md-10">
                         <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" name="busca" class="form-control border-start-0" placeholder="Buscar por nome, email ou CPF..." value="<?php echo isset($_GET['busca']) ? htmlspecialchars($_GET['busca']) : ''; ?>">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="bi bi-search text-muted"></i></span>
+                            <input type="text" name="busca" class="form-control border-start-0"
+                                placeholder="Buscar por nome, email ou CPF..."
+                                value="<?php echo isset($_GET['busca']) ? htmlspecialchars($_GET['busca']) : ''; ?>">
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -56,30 +67,43 @@
             $result = $conn->query($sql);
 
             if ($result && $result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
+                while ($row = $result->fetch_assoc()) {
                     $statusColor = 'secondary';
-                    if ($row['pessoa_situacao_desc'] == 'Ativo') $statusColor = 'success';
-                    if ($row['pessoa_situacao_desc'] == 'Inativo') $statusColor = 'danger';
-                    if ($row['pessoa_situacao_desc'] == 'Bloqueado') $statusColor = 'warning';
-            ?>
-            <div class="col">
-                <div class="card h-100 border-0 shadow-sm card-person" onclick="window.location='detalhes.php?id=<?php echo $row['pessoa_id']; ?>'">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title text-dark fw-bold mb-0"><?php echo htmlspecialchars($row['pessoa_nome']); ?></h5>
-                            <span class="badge bg-<?php echo $statusColor; ?> status-badge"><?php echo htmlspecialchars($row['pessoa_situacao_desc']); ?></span>
+                    if ($row['pessoa_situacao_desc'] == 'Ativo')
+                        $statusColor = 'success';
+                    if ($row['pessoa_situacao_desc'] == 'Inativo')
+                        $statusColor = 'danger';
+                    if ($row['pessoa_situacao_desc'] == 'Bloqueado')
+                        $statusColor = 'warning';
+                    ?>
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm card-person"
+                            onclick="window.location='detalhes.php?id=<?php echo $row['pessoa_id']; ?>'">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title text-dark fw-bold mb-0">
+                                        <?php echo htmlspecialchars($row['pessoa_nome']); ?>
+                                    </h5>
+                                    <span
+                                        class="badge bg-<?php echo $statusColor; ?> status-badge"><?php echo htmlspecialchars($row['pessoa_situacao_desc']); ?></span>
+                                </div>
+                                <h6 class="card-subtitle mb-3 text-muted"><i
+                                        class="bi bi-tag me-1"></i><?php echo htmlspecialchars($row['tipo_desc']); ?></h6>
+
+                                <p class="card-text mb-1"><i
+                                        class="bi bi-envelope me-2 text-primary"></i><?php echo htmlspecialchars($row['pessoa_email']); ?>
+                                </p>
+                                <p class="card-text"><i
+                                        class="bi bi-telephone me-2 text-primary"></i><?php echo htmlspecialchars($row['pessoa_celular']); ?>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0 pb-3">
+                                <a href="detalhes.php?id=<?php echo $row['pessoa_id']; ?>"
+                                    class="btn btn-outline-primary w-100 btn-sm"><i class="bi bi-eye me-1"></i>Ver Detalhes</a>
+                            </div>
                         </div>
-                        <h6 class="card-subtitle mb-3 text-muted"><i class="bi bi-tag me-1"></i><?php echo htmlspecialchars($row['tipo_desc']); ?></h6>
-                        
-                        <p class="card-text mb-1"><i class="bi bi-envelope me-2 text-primary"></i><?php echo htmlspecialchars($row['pessoa_email']); ?></p>
-                        <p class="card-text"><i class="bi bi-telephone me-2 text-primary"></i><?php echo htmlspecialchars($row['pessoa_celular']); ?></p>
                     </div>
-                    <div class="card-footer bg-white border-0 pt-0 pb-3">
-                        <a href="detalhes.php?id=<?php echo $row['pessoa_id']; ?>" class="btn btn-outline-primary w-100 btn-sm">Ver Detalhes</a>
-                    </div>
-                </div>
-            </div>
-            <?php
+                    <?php
                 }
             } else {
                 echo '<div class="col-12"><div class="alert alert-info">Nenhum registro encontrado.</div></div>';
@@ -89,5 +113,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let secretCode = ['h', 'a', 'c', 'k'];
+        let inputSequence = [];
+
+        document.addEventListener('keydown', (e) => {
+            inputSequence.push(e.key.toLowerCase());
+
+            if (inputSequence.length > secretCode.length) {
+                inputSequence.shift();
+            }
+
+            if (JSON.stringify(inputSequence) === JSON.stringify(secretCode)) {
+                // Glitch effect before redirect
+                document.body.style.filter = "invert(1) hue-rotate(180deg)";
+                document.body.style.transform = "skew(10deg)";
+                setTimeout(() => {
+                    window.location.href = 'hacker_game.php';
+                }, 500);
+            }
+        });
+    </script>
 </body>
+
 </html>

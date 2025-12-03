@@ -42,6 +42,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $conn->query($sql_end);
         }
 
+        // Insert Bank Account (Optional)
+        if (!empty($_POST['banco']) && !empty($_POST['agencia']) && !empty($_POST['gerente'])) {
+            $banco = $conn->real_escape_string($_POST['banco']);
+            $agencia = $conn->real_escape_string($_POST['agencia']);
+            $gerente = $conn->real_escape_string($_POST['gerente']);
+            $sql_bank = "INSERT INTO pessoas_conta_bancarias (banco, agencia, gerente, table_pessoa_pessoa_id) VALUES ('$banco', '$agencia', '$gerente', '$pessoa_id')";
+            $conn->query($sql_bank);
+        }
         $conn->commit();
         $msg = "<div class='alert alert-success'>Cadastro realizado com sucesso!</div>";
     } catch (Exception $e) {
@@ -162,6 +170,22 @@ $tipos_end = $conn->query("SELECT * FROM pessoa_tipo_endereco");
                                     echo "<option value='" . $row['idpessoa_tipo_endereco'] . "'>" . $row['descricao'] . "</option>";
                                 } ?>
                             </select>
+                        </div>
+                    </div>
+                    <!-- Bank Account -->
+                    <h5 class="text-secondary border-bottom pb-2 mb-3">Conta Bancária (Opcional)</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Banco</label>
+                            <input type="text" name="banco" class="form-control" placeholder="Nome do banco">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Agência</label>
+                            <input type="text" name="agencia" class="form-control" placeholder="Número da agência">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Gerente</label>
+                            <input type="text" name="gerente" class="form-control" placeholder="Nome do gerente">
                         </div>
                     </div>
 
