@@ -32,9 +32,9 @@
         .wb{width:18px;height:18px;border:none;border-radius:50%;cursor:pointer;font-size:10px}
         .bc{background:#f55}.bm{background:#fa0}.bx{background:#5f5}
         .wcont{padding:10px;height:calc(100% - 32px);overflow:auto;color:#0ff}
-        .term{background:#000;color:#0f0;font-family:'Share Tech Mono';padding:10px;height:100%}
-        .term .l{margin:2px 0;white-space:pre-wrap}.term .e{color:#f44}.term .s{color:#4f4}.term .w{color:#ff0}.term .y{color:#0ff}
-        #ti{display:flex;margin-top:5px}#tp{color:#0f0}#tin{background:0;border:0;color:#0f0;font-family:inherit;flex:1;outline:0}
+        .term{background:linear-gradient(180deg,#000510,#001020);color:#0f0;font-family:'Share Tech Mono';padding:15px;height:100%;border:1px solid #0a3;box-shadow:inset 0 0 50px rgba(0,255,0,.1)}
+        .term .l{margin:4px 0;white-space:pre-wrap;text-shadow:0 0 8px #0f0}.term .e{color:#f44;text-shadow:0 0 5px #f44}.term .s{color:#4f4;text-shadow:0 0 5px #4f4}.term .w{color:#ff0;text-shadow:0 0 5px #ff0}.term .y{color:#0ff;text-shadow:0 0 5px #0ff}
+        #ti{display:flex;margin-top:10px;padding:10px;background:rgba(0,50,0,.3);border:1px solid #0a3;border-radius:5px}#tp{color:#0f0;text-shadow:0 0 5px #0f0;font-weight:bold}#tin{background:0;border:0;color:#0f0;font-family:inherit;flex:1;outline:0;text-shadow:0 0 5px #0f0}
         .puzzle-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:10000}
         .puzzle-modal.active{display:flex}
         .puzzle-box{background:#0a1020;border:2px solid #0af;border-radius:10px;padding:30px;max-width:500px;color:#0ff;text-align:center}
@@ -179,7 +179,7 @@
 
 <div class="win" id="w-sat" style="width:700px;height:450px;left:150px;top:40px">
     <div class="wh" onmousedown="drag(event,'w-sat')"><span class="wt">🛰️ Satélite</span><div class="wc"><button class="wb bc" onclick="closeW('sat')">×</button></div></div>
-    <div class="wcont" style="padding:0;background:linear-gradient(180deg,#001030,#002050);height:100%;position:relative">
+    <div class="wcont" style="padding:0;background:url('map.png') center/cover;height:100%;position:relative">
         <div style="position:absolute;top:30%;left:20%;width:15px;height:15px;background:#f00;border-radius:50%;animation:pulse 1s infinite" onclick="alert('SILO-01 Montana')"></div>
         <div style="position:absolute;top:35%;left:25%;width:15px;height:15px;background:#f00;border-radius:50%;animation:pulse 1s infinite"></div>
         <div style="position:absolute;top:40%;left:22%;width:15px;height:15px;background:#f00;border-radius:50%;animation:pulse 1s infinite"></div>
