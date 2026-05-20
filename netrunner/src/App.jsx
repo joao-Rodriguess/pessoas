@@ -1,0 +1,34 @@
+import { AuthProvider } from './context/AuthContext';
+import { GameProvider, useGame } from './context/GameContext';
+import Boot from './pages/Boot';
+import Login from './pages/Login';
+import Desktop from './pages/Desktop';
+import Victory from './pages/Victory';
+import GameOver from './pages/GameOver';
+import NarrativeOverlay from './components/NarrativeOverlay';
+
+function GameRouter() {
+  const { state } = useGame();
+
+  return (
+    <>
+      {state.phase === 'boot' && <Boot />}
+      {state.phase === 'login' && <Login />}
+      {state.phase === 'desktop' && <Desktop />}
+      {state.phase === 'victory' && <Victory />}
+      {state.phase === 'gameover' && <GameOver />}
+      {state.currentNarrative && <NarrativeOverlay />}
+      <div className="scanlines-overlay" />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <GameProvider>
+        <GameRouter />
+      </GameProvider>
+    </AuthProvider>
+  );
+}
