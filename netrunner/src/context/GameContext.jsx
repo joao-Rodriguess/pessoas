@@ -1,6 +1,6 @@
-import { createContext, useContext, useReducer, useCallback, useEffect, useRef } from 'react';
+import { createContext, useContext, useReducer, useCallback, useEffect, useRef, useState } from 'react';
 import { db, isFirebaseConfigured } from '../firebase';
-import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const GameContext = createContext(null);
 
@@ -227,6 +227,31 @@ function reducer(state, action) {
     case 'DEACTIVATE_PROXY':
       return { ...state, proxyActive: false };
 
+    case 'LOAD_SAVED_STATE': {
+      if (!action.data) return state;
+      const { stats, achievements, score, vault, transfer, powerups, ...otherData } = action.data;
+      return {
+        ...state,
+        ...otherData,
+        score,
+        achievements,
+        vault,
+        transfer,
+        powerups,
+        ...(stats && {
+          firewall: stats.firewall,
+          encryption: stats.encryption,
+          auth: stats.auth,
+          database: stats.database,
+          network: stats.network,
+          hackCount: stats.hackCount,
+          bankBalance: stats.bankBalance,
+          cctvDisabled: stats.cctvDisabled,
+          missileAborted: stats.missileAborted,
+        }),
+      };
+    }
+
     case 'RESET':
       return { ...initialState };
 
@@ -237,8 +262,11 @@ function reducer(state, action) {
 
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [user, setUser] = useState(null);
+  const [saveStatus, setSaveStatus] = useState('ready'); // ready | saving | saved | error
   const traceRef = useRef(null);
   const countdownRef = useRef(null);
+  const saveTimeoutRef = useRef(null);
 
   // Trace timer
   useEffect(() => {
@@ -282,22 +310,118 @@ export function GameProvider({ children }) {
     }
   }, []);
 
-  const submitScore = useCallback(async (user) => {
-    if (!isFirebaseConfigured || !user) return;
+  // ── Firebase Helper: Save game progress ──
+  const saveGameProgress = useCallback(async (currentUser, currentState) => {
+    if (!isFirebaseConfigured || !currentUser || currentUser.offline) return null;
+    try {
+      setSaveStatus('saving');
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const gameProgressData = {
+        displayName: currentUser.displayName || 'GHOST',
+        score: currentState.score,
+        trace: currentState.trace,
+        phase: currentState.phase,
+        achievements: currentState.achievements,
+        stats: {
+          firewall: currentState.firewall,
+          encryption: currentState.encryption,
+          auth: currentState.auth,
+          database: currentState.database,
+          network: currentState.network,
+          vault: currentState.vault,
+          hackCount: currentState.hackCount,
+          bankBalance: currentState.bankBalance,
+          cctvDisabled: currentState.cctvDisabled,
+          missileAborted: currentState.missileAborted,
+        },
+        powerups: currentState.powerups,
+        lastSaved: serverTimestamp(),
+      };
+      await setDoc(userDocRef, gameProgressData, { merge: true });
+      setSaveStatus('saved');
+      // Reset status after 2 seconds
+      setTimeout(() => setSaveStatus('ready'), 2000);
+    } catch (err) {
+      console.warn('Game save error:', err);
+      setSaveStatus('error');
+    }
+  }, []);
+
+  // ── Firebase Helper: Load saved game progress ──
+  const loadGameProgress = useCallback(async (currentUser) => {
+    if (!isFirebaseConfigured || !currentUser || currentUser.offline) return null;
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+    } catch (err) {
+      console.warn('Game load error:', err);
+    }
+    return null;
+  }, []);
+
+  // ── Firebase Helper: Log achievement unlock ──
+  const logAchievementUnlock = useCallback(async (currentUser, achievementId) => {
+    if (!isFirebaseConfigured || !currentUser || currentUser.offline) return;
+    try {
+      const achievementsCollRef = collection(db, 'users', currentUser.uid, 'achievements');
+      await addDoc(achievementsCollRef, {
+        achievementId,
+        unlockedAt: serverTimestamp(),
+        score: state.score,
+      });
+    } catch (err) {
+      console.warn('Achievement log error:', err);
+    }
+  }, [state.score]);
+
+  const submitScore = useCallback(async (submitUser) => {
+    if (!isFirebaseConfigured || !submitUser) return;
     try {
       await addDoc(collection(db, 'leaderboard'), {
-        name: user.displayName || 'GHOST',
+        uid: submitUser.uid,
+        name: submitUser.displayName || 'GHOST',
         score: state.score,
         achievements: state.achievements.length,
+        hacks: state.hackCount,
+        trace: state.trace,
         timestamp: serverTimestamp(),
       });
     } catch (err) {
       console.warn('Score submit error:', err);
     }
-  }, [state.score, state.achievements]);
+  }, [state.score, state.achievements, state.hackCount, state.trace]);
+
+  // ── Track user for auto-save ──
+  // The user is set by the AuthContext integration above
+
+  // ── Auto-save game progress every 30 seconds when playing ──
+  useEffect(() => {
+    if (!user || user.offline || !isFirebaseConfigured) return;
+    if (state.phase === 'boot' || state.phase === 'login') return; // Don't save on these screens
+
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveGameProgress(user, state);
+    }, 30000); // Auto-save every 30 seconds
+
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, [state, user, saveGameProgress]);
+
+  // ── Log new achievements ──
+  useEffect(() => {
+    if (!user || user.offline || !isFirebaseConfigured) return;
+    state.achievements.forEach((ach) => {
+      logAchievementUnlock(user, ach);
+    });
+  }, [state.achievements, user, logAchievementUnlock]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch, submitScore }}>
+    <GameContext.Provider value={{ state, dispatch, submitScore, saveGameProgress, loadGameProgress, saveStatus, setUser }}>
       {children}
     </GameContext.Provider>
   );

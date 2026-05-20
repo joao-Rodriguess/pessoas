@@ -61,11 +61,12 @@ Hackear 5 sistemas de segurança, encontrar os códigos Alpha e Beta, acessar o 
 |---|---|
 | **React 18** | Interface e componentes |
 | **Vite 5** | Build tool e dev server |
-| **Firebase Auth** | Autenticação (anônima + email) |
-| **Firestore** | Leaderboard global em tempo real |
-| **Framer Motion** | Animações suaves |
-| **CSS Puro** | Design system cyberpunk customizado |
-| **Web Audio API** | Efeitos sonoros procedurais |
+| **Firebase 10** | 🔥 Autenticação, Firestore, Leaderboard |
+| **Firestore** | 📊 Armazenamento de progresso e rankings |
+| **Firebase Auth** | 🔐 Autenticação (anônima + email) |
+| **Framer Motion** | 🎬 Animações suaves |
+| **CSS Puro** | 🎨 Design system cyberpunk customizado |
+| **Web Audio API** | 🔊 Efeitos sonoros procedurais |
 
 ---
 
@@ -97,11 +98,20 @@ O jogo funciona **sem Firebase configurado** (modo offline) — scores são mant
 
 ### Configurar Firebase (Opcional)
 
+Para habilitar **auto-save, leaderboard global e achievements**:
+
 1. Acesse [Firebase Console](https://console.firebase.google.com)
 2. Crie um novo projeto
-3. Ative **Authentication** → Métodos: Anonymous + Email/Password
-4. Crie um banco **Firestore Database** em modo de teste
-5. Copie as credenciais para o arquivo `.env`
+3. Ative **Authentication** → Métodos sign-in: 
+   - ✅ Anonymous
+   - ✅ Email/Password
+4. Crie um **Firestore Database** (Start in test mode)
+5. Copie as credenciais da seção "Project Settings" 
+6. Cole os valores no arquivo `.env`
+
+**Resultado**: Game auto-salva progresso, leaderboard funciona em tempo real! 🚀
+
+→ **Guia Completo**: Veja `FIREBASE_SETUP.md` para instruções detalhadas
 
 ---
 
@@ -116,10 +126,83 @@ O jogo funciona **sem Firebase configurado** (modo offline) — scores são mant
 - ✅ **Conquistas / Achievements**
 - ✅ **Leaderboard global** via Firebase (opcional)
 - ✅ **Login anônimo ou por email**
+- ✅ **Auto-save de progresso** — suas partidas são salvas automaticamente a cada 30s
+- ✅ **Resume Game** — retome seu progresso anterior ao fazer login com email
+- ✅ **Rastreamento de estatísticas** — firebase guarda seus hacks, scores históricos
 - ✅ **Modo alerta** quando trace > 70% (UI muda de cor)
 - ✅ **Efeitos visuais** — scanlines, partículas, glassmorphism, glitch effects
 - ✅ **Tela de boot** estilo BIOS com animação de inicialização
 - ✅ **Design cyberpunk premium** com paleta de cores curada
+
+---
+
+## 🔥 FIREBASE INTEGRATION
+
+O jogo agora tem integração **completa com Firebase** para armazenar progresso e criar um leaderboard global!
+
+### Recursos Firebase Implementados
+
+#### 1️⃣ **Autenticação**
+- Login anônimo (sem conta — não salva progresso)
+- Login com Email/Password (cria conta e salva tudo)
+- Suporte a offline mode (funciona sem Firebase configurado)
+
+#### 2️⃣ **Auto-Save de Progresso**
+- Salva automaticamente a cada 30 segundos durante o jogo
+- Persiste: score, achievements, hacks completos, powerups, recursos do banco
+- Sincroniza com Firestore em tempo real
+
+#### 3️⃣ **Resume Game**
+- Ao fazer login com email, sistema detecta progresso anterior
+- Opção de **Retomar Missão** (continua de onde parou) ou **Nova Missão**
+- Exibe score anterior e hacks completados
+
+#### 4️⃣ **Leaderboard Global**
+- Top 10 Players em tempo real
+- Atualiza instantaneamente quando novo score é enviado
+- Mostra: posição, nome, score, achievements, hacks
+- Fallback para dados de exemplo se Firebase offline
+
+#### 5️⃣ **Achievements Tracking**
+- Cada achievement desbloqueado é registrado no Firebase
+- Armazena timestamp e score no momento do desbloqueio
+- Acessível no leaderboard
+
+### Como Usar Firebase
+
+#### Modo Offline (Desenvolvimento)
+```javascript
+// Funciona sem arquivo .env configurado
+// Scores são mantidos apenas na sessão atual
+npm run dev
+```
+
+#### Modo Online (Com Firebase)
+```bash
+# 1. Configure o .env com suas credenciais
+cp .env.example .env
+# Edite .env com seus valores do Firebase Console
+
+# 2. Inicie o app
+npm run dev
+
+# 3. Faça login com email para habilitar auto-save
+# 4. Altere entre abas — progresso é salvo automaticamente
+# 5. Reabra e faça login novamente para resumir!
+```
+
+### Configuração Firebase Rápida
+
+Para detalhes completos, veja **`FIREBASE_SETUP.md`**
+
+```bash
+# Resumido:
+1. Firebase Console → Criar projeto
+2. Habilitar: Authentication (Anonymous + Email/Password)
+3. Criar: Firestore Database em modo teste
+4. Copiar credenciais para .env
+5. Pronto! ✅
+```
 
 ---
 

@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { GameProvider, useGame } from './context/GameContext';
+import { useAuth } from './context/AuthContext';
 import Boot from './pages/Boot';
 import Login from './pages/Login';
 import Desktop from './pages/Desktop';
@@ -9,6 +11,13 @@ import NarrativeOverlay from './components/NarrativeOverlay';
 
 function GameRouter() {
   const { state } = useGame();
+  const { user } = useAuth();
+
+  // Update GameProvider with current user for auto-save
+  const { setUser: setGameUser } = useGame();
+  useEffect(() => {
+    setGameUser(user);
+  }, [user, setGameUser]);
 
   return (
     <>

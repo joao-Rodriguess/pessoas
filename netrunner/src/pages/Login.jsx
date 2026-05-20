@@ -1,18 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
 
 export default function Login() {
-  const { loginAnonymous, loginEmail } = useAuth();
-  const { dispatch } = useGame();
-  const [mode, setMode] = useState('main'); // main, email
+  const { loginAnonymous, loginEmail, user } = useAuth();
+  const { dispatch, loadGameProgress } = useGame();
+  const [mode, setMode] = useState('main'); // main, email, resume
   const [codename, setCodename] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [savedProgress, setSavedProgress] = useState(null);
 
-  const startGame = () => {
+  useEffect(() => {
+    // Check for saved progress after email login
+    if (user && !user.offline && user.email && user.email.includes('@')) {
+      loadGameProgress(user).then((saved) => {
+        if (saved && saved.score > 0) {
+          setSavedProgress(saved);
+          setMode('resume');
+        } else {
+          // No saved progress, start new game
+          startNewGame();
+        }
+      });
+    }
+  }, [user, loadGameProgress]);
+
+  const startNewGame = () => {
     dispatch({ type: 'INIT_PUZZLES' });
     dispatch({
       type: 'PUSH_NARRATIVE',
@@ -23,6 +39,25 @@ export default function Login() {
     });
     dispatch({ type: 'SHOW_NEXT_NARRATIVE' });
     dispatch({ type: 'SET_PHASE', phase: 'desktop' });
+  };
+
+  const resumeGame = () => {
+    if (!savedProgress) return;
+    // Restore game state from saved progress
+    dispatch({ type: 'LOAD_SAVED_STATE', data: savedProgress });
+    dispatch({
+      type: 'PUSH_NARRATIVE',
+      narrative: {
+        speaker: 'ARIA — I.A. PARCEIRA',
+        text: `GHOST, recuperei sua sessão anterior.\n\nScore: ${savedProgress.score} | Hacks: ${savedProgress.stats?.hackCount || 0}/5 | Trace: ${Math.round(savedProgress.trace || 0)}%\n\nVamos terminar essa missão!`,
+      },
+    });
+    dispatch({ type: 'SHOW_NEXT_NARRATIVE' });
+    dispatch({ type: 'SET_PHASE', phase: 'desktop' });
+  };
+
+  const startGame = () => {
+    startNewGame();
   };
 
   const handleAnonymous = async () => {
@@ -90,6 +125,32 @@ export default function Login() {
               onClick={() => setMode('email')}
             >
               📧 LOGIN COM EMAIL (salva progresso)
+            </button>
+          </>
+        ) : mode === 'resume' ? (
+          <>
+            <div style={{ background: 'rgba(100, 200, 255, 0.1)', padding: 12, borderRadius: 'var(--radius-sm)', marginBottom: 16, borderLeft: '3px solid var(--blue-400)' }}>
+              <div style={{ color: 'var(--blue-300)', fontSize: 13, fontWeight: 'bold', marginBottom: 8 }}>📊 PROGRESSO SALVO</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                Score: <span style={{ color: 'var(--green-400)' }}>{savedProgress?.score?.toLocaleString() || 0}</span><br />
+                Hacks: {savedProgress?.stats?.hackCount || 0}/5 | Trace: {Math.round(savedProgress?.trace || 0)}%
+              </div>
+            </div>
+
+            <button
+              className="login-btn login-btn-primary"
+              onClick={resumeGame}
+              disabled={loading}
+            >
+              ▶️ RETOMAR MISSÃO
+            </button>
+
+            <button
+              className="login-btn login-btn-ghost"
+              onClick={startNewGame}
+              style={{ marginTop: 8 }}
+            >
+              🆕 NOVA MISSÃO
             </button>
           </>
         ) : (
