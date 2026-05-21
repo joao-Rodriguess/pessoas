@@ -19,6 +19,7 @@ export default function CyberBrowser() {
   const [activeTabId, setActiveTabId] = useState(1);
   const [urlInput, setUrlInput] = useState('google.com');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchSubTab, setSearchSubTab] = useState('all');
 
   // Obter aba ativa
   const activeTab = tabs.find(t => t.id === activeTabId) || tabs[0];
@@ -135,6 +136,7 @@ export default function CyberBrowser() {
     if (searchQuery.trim()) {
       const searchUrl = `google.com/search?q=${encodeURIComponent(searchQuery.trim())}`;
       navigateTo(searchUrl);
+      setSearchSubTab('all'); // Resetar para a aba principal ao buscar algo novo
     }
   };
 
@@ -246,7 +248,172 @@ export default function CyberBrowser() {
       );
     }
 
+    if (cleanTerm.includes('nexus') || cleanTerm.includes('corporation') || cleanTerm.includes('corp')) {
+      return (
+        <div className="knowledge-graph-card corporate-card">
+          <div className="knowledge-header font-cyan">
+            <h3>Nexus Corporation</h3>
+            <span className="knowledge-subtitle">Tecnologia de Defesa e Segurança Global</span>
+          </div>
+          <div className="knowledge-body">
+            <div className="knowledge-img corporate-logo-img">🏢</div>
+            <p className="knowledge-description">
+              Líder global em inteligência de resposta autônoma tática, defesas cibernéticas de mainframe e satélites balísticos de órbita baixa. Fundada em 2031, a corporação é parceira central de segurança de nações soberanas mundiais.
+            </p>
+            <div className="knowledge-info-block">
+              <div><strong>CEO Provisório:</strong> A.R.I.A. (Sub-núcleo)</div>
+              <div><strong>Sede Global:</strong> Neo-Detroit, Setor Militar 4</div>
+              <div><strong>Faturamento Anual:</strong> US$ 4.2 Trilhões</div>
+              <div><strong>Status de Defesa:</strong> <span className="text-danger font-bold">Protocolo DEFCON-1 Ativo</span></div>
+              <div><strong>Código de Ações:</strong> NEXS (Bolsa Cibernética)</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return null;
+  };
+
+  const handleResultClick = (res) => {
+    if (res.isGeneric) {
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(res.query)}`, '_blank');
+    } else {
+      navigateTo(res.url);
+    }
+  };
+
+  const renderImagesTab = (term) => {
+    const formatted = term.charAt(0).toUpperCase() + term.slice(1);
+    let shadowColor = 'var(--cyan-500)';
+    let bgPattern = 'radial-gradient(circle, rgba(0, 212, 255, 0.12) 0%, transparent 80%)';
+    
+    if (term.includes('defcon') || term.includes('miss')) {
+      shadowColor = 'var(--red-500)';
+      bgPattern = 'radial-gradient(circle, rgba(255, 23, 68, 0.18) 0%, transparent 80%)';
+    } else if (term.includes('aria') || term.includes('zero')) {
+      shadowColor = 'var(--purple-500)';
+      bgPattern = 'radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, transparent 80%)';
+    }
+    
+    return (
+      <div className="google-images-grid">
+        {[...Array(6)].map((_, i) => (
+          <div 
+            key={i} 
+            className="google-image-card"
+            onClick={() => window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(term)}`, '_blank')}
+            style={{ '--image-glow': shadowColor }}
+          >
+            <div className="image-preview-placeholder" style={{ background: bgPattern }}>
+              <span className="image-placeholder-icon">🖼️</span>
+              <span className="image-technical-lines" />
+              <span className="image-term-badge">{term.toUpperCase()} #{i+1}</span>
+            </div>
+            <div className="image-card-info">
+              <span className="image-card-title font-bold">Esquema Técnico de {formatted} - Infográfico {i+1}</span>
+              <span className="image-card-source">nexus.corp/images</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderNewsTab = (term) => {
+    const formatted = term.charAt(0).toUpperCase() + term.slice(1);
+    const newsTemplates = [
+      {
+        source: 'NetShadow Gazette',
+        title: `Vazamento de dados expõe conexões secretas sobre ${formatted} e a Nexus Corp`,
+        time: 'Há 2 horas',
+        desc: `Especialistas em criptografia afirmam que documentos secretos da divisão militar da Nexus Corporation trazem detalhes sigilosos correlacionados com ${term}. Hackers da Zero-Day reinvidicam o ataque.`
+      },
+      {
+        source: 'Neo-Detroit Financials',
+        title: `Ações da Nexus (NEXS) sofrem oscilação após rumores de regulamentações em ${formatted}`,
+        time: 'Há 5 horas',
+        desc: `O mercado financeiro internacional reagiu fortemente hoje aos rumores de que o governo de Neo-Detroit está aplicando novas diretrizes de fiscalização sobre o ecossistema de ${term}.`
+      },
+      {
+        source: 'CyberDefense Intelligence',
+        title: `Alerta Vermelho: Firewall militar bloqueia varreduras massivas associadas a ${formatted}`,
+        time: 'Ontem',
+        desc: `Logs do satélite DEFCON-1 reportaram picos atípicos de tráfego de backdoor. Análise preliminar indica tentativas ativas de infiltração de dados estruturados com a assinatura de ${term}.`
+      }
+    ];
+
+    return (
+      <div className="google-news-list">
+        {newsTemplates.map((news, i) => (
+          <div 
+            key={i} 
+            className="google-news-card"
+            onClick={() => window.open(`https://www.google.com/search?tbm=nws&q=${encodeURIComponent(term)}`, '_blank')}
+          >
+            <div className="news-card-header">
+              <span className="news-source">{news.source}</span>
+              <span className="news-time">• {news.time}</span>
+            </div>
+            <h4 className="news-title">{news.title}</h4>
+            <p className="news-desc">{news.desc}</p>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderVideosTab = (term) => {
+    const formatted = term.charAt(0).toUpperCase() + term.slice(1);
+    const videoTemplates = [
+      {
+        title: `Tutorial Prático: Como Hackear e Configurar ${formatted} de Forma Segura`,
+        channel: 'ShadowAcademy',
+        views: '342k visualizações',
+        duration: '12:45',
+        time: 'Há 3 meses'
+      },
+      {
+        title: `A Verdade Oculta sobre ${formatted} que a Nexus Corp Não Quer que Você Saiba!`,
+        channel: 'CyberTruth Network',
+        views: '1.2M visualizações',
+        duration: '24:18',
+        time: 'Há 1 ano'
+      },
+      {
+        title: `Synthwave Live Set: Coding & Cyber-Security Sessions focusing on ${formatted}`,
+        channel: 'RetroBytes Beats',
+        views: '98k visualizações',
+        duration: '3:15:00',
+        time: 'Transmitido há 2 semanas'
+      }
+    ];
+
+    return (
+      <div className="google-videos-grid">
+        {videoTemplates.map((vid, i) => (
+          <div 
+            key={i} 
+            className="google-video-card"
+            onClick={() => window.open(`https://www.google.com/search?tbm=vid&q=${encodeURIComponent(term)}`, '_blank')}
+          >
+            <div className="video-thumb-container">
+              <span className="video-play-icon">▶</span>
+              <span className="video-duration-badge">{vid.duration}</span>
+              <div className="video-thumb-placeholder">
+                <div className="vid-wave" />
+                <span className="vid-badge-term">{term}</span>
+              </div>
+            </div>
+            <div className="video-info-block">
+               <h4 className="video-card-title">{vid.title}</h4>
+               <span className="video-card-channel">{vid.channel}</span>
+               <span className="video-card-views">{vid.views} • {vid.time}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   // Renderizar o site de destino simulado com base na URL
@@ -281,6 +448,20 @@ export default function CyberBrowser() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
+              <button 
+                type="button" 
+                className="google-real-home-btn"
+                onClick={() => {
+                  if (searchQuery.trim()) {
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery.trim())}`, '_blank');
+                  } else {
+                    window.open('https://www.google.com', '_blank');
+                  }
+                }}
+                title="Abrir no Google Real"
+              >
+                🌐
+              </button>
             </div>
             <div className="google-search-buttons">
               <button type="submit" className="google-btn">Pesquisa NetGoogle</button>
@@ -378,13 +559,44 @@ export default function CyberBrowser() {
             desc: 'A Zero-Day reuniu todas as respostas conhecidas para hackear a NEXUS: Criptografia, Banco Federal (Senha 42), Terminal Root, e os Códigos Alpha e Beta de desativação.',
           },
         ];
-      } else {
+      } else if (term.includes('nexus corporation') || term.includes('nexus corp') || term === 'nexus') {
         results = [
           {
-            title: `Buscador NetGoogle — Sem resultados para "${getQueryParam()}"`,
-            url: 'google.com',
-            desc: 'O firewall da NEXUS Corp bloqueou buscas contendo termos irrelevantes para segurança nacional. Tente buscar termos confidenciais do mainframe como: "cheats", "defcon", "aria", "li chen" ou "marcus webb".',
+            title: 'NEXUS CORPORATION — Website Oficial de Segurança Global',
+            url: 'nexus.corp',
+            desc: 'Líder global em inteligência de resposta autônoma tática, defesas cibernéticas de mainframe e satélites balísticos de órbita baixa. Fundada em 2031, a corporação é parceira de segurança de nações soberanas mundiais.',
+            isNexusCorp: true,
           },
+          {
+            title: 'ZERO-DAY WIKI — A verdade oculta por trás da Nexus Corp',
+            url: 'zeroday.org/aria-project',
+            desc: 'Dossiê vazado: Descubra a história oculta sobre a IA militarizada ARIA e as chaves de controle nucleares da Nexus Corp. Informações confidenciais vazadas.',
+          }
+        ];
+      } else {
+        const displayTerm = getQueryParam();
+        results = [
+          {
+            title: `ZERO-DAY WIKI — A Verdadeira Natureza de "${displayTerm}"`,
+            url: `zeroday.org/wiki/${encodeURIComponent(term)}`,
+            desc: `Documentos secretos hackeados revelam a conexão direta da Nexus Corp com pesquisas secretas em ${displayTerm}. A facção Zero-Day investiga o caso.`,
+            isGeneric: true,
+            query: term,
+          },
+          {
+            title: `SHADOW FORUM — Discussão Ativa: "${displayTerm}" no Mainframe`,
+            url: `shadow-forum.net/threads/${encodeURIComponent(term)}`,
+            desc: `Membros da resistência debatem os impactos táticos de ${displayTerm} no ecossistema atual de Neo-Detroit. Veja os logs vazados e exploits.`,
+            isGeneric: true,
+            query: term,
+          },
+          {
+            title: `CyberDefense News — Alerta global sobre atividades com "${displayTerm}"`,
+            url: `cyberdefense.corp/news/${encodeURIComponent(term)}`,
+            desc: `O comitê militar da Nexus reportou flutuações de tráfego de rede e logs de satélite atípicos correlacionados com ${displayTerm}.`,
+            isGeneric: true,
+            query: term,
+          }
         ];
       }
 
@@ -404,36 +616,109 @@ export default function CyberBrowser() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="results-search-btn">🔍</button>
+              <button type="submit" className="results-search-btn" title="Pesquisar">🔍</button>
+              <button 
+                type="button" 
+                className="google-real-btn" 
+                onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery || getQueryParam())}`, '_blank')}
+                title="Abrir pesquisa atual no Google Real"
+              >
+                🌐 Google Real
+              </button>
             </form>
           </div>
 
-          {/* Abas clássicas do Google */}
+          {/* Abas clássicas do Google clicáveis */}
           <div className="results-sub-nav">
-            <div className="sub-nav-item active">🔍 Todas</div>
-            <div className="sub-nav-item">📰 Notícias</div>
-            <div className="sub-nav-item">🖼️ Imagens</div>
-            <div className="sub-nav-item">🎥 Vídeos</div>
-            <div className="sub-nav-item">⚙️ Configurações</div>
-          </div>
-
-          <div className="results-stats">
-            Aproximadamente {results.length === 1 && results[0].title.includes('Sem resultados') ? '0' : results.length} resultados (0.04 segundos)
-          </div>
-
-          {/* Wrapper Flex/Grid de duas colunas para o Layout Google Premium */}
-          <div className="results-body-wrapper">
-            <div className="results-list results-main-col">
-              {results.map((res, i) => (
-                <div key={i} className="search-result-item">
-                  <span className="result-url" onClick={() => navigateTo(res.url)}>{res.url}</span>
-                  <h3 className="result-title" onClick={() => navigateTo(res.url)}>{res.title}</h3>
-                  <p className="result-desc">{res.desc}</p>
-                </div>
-              ))}
+            <div 
+              className={`sub-nav-item ${searchSubTab === 'all' ? 'active' : ''}`}
+              onClick={() => setSearchSubTab('all')}
+            >
+              🔍 Todas
             </div>
+            <div 
+              className={`sub-nav-item ${searchSubTab === 'news' ? 'active' : ''}`}
+              onClick={() => setSearchSubTab('news')}
+            >
+              📰 Notícias
+            </div>
+            <div 
+              className={`sub-nav-item ${searchSubTab === 'images' ? 'active' : ''}`}
+              onClick={() => setSearchSubTab('images')}
+            >
+              🖼️ Imagens
+            </div>
+            <div 
+              className={`sub-nav-item ${searchSubTab === 'videos' ? 'active' : ''}`}
+              onClick={() => setSearchSubTab('videos')}
+            >
+              🎥 Vídeos
+            </div>
+            <div className="sub-nav-item disabled">⚙️ Configurações</div>
+          </div>
 
-            {/* Coluna do Knowledge Graph (Painel de Informações Laterais) */}
+          {/* Renderização condicional de acordo com a sub-aba selecionada */}
+          {searchSubTab === 'all' && (
+            <>
+              <div className="results-stats">
+                Aproximadamente {results.length} resultados (0.04 segundos)
+              </div>
+
+              {/* Wrapper Flex/Grid de duas colunas para o Layout Google Premium */}
+              <div className="results-body-wrapper">
+                <div className="results-list results-main-col">
+                  {results.map((res, i) => (
+                    <div key={i} className="search-result-item">
+                      <span className="result-url" onClick={() => handleResultClick(res)}>
+                        {res.url}
+                        {res.isGeneric && <span className="external-link-tag">🌐 Abrir na Web Real</span>}
+                      </span>
+                      <h3 className="result-title" onClick={() => handleResultClick(res)}>
+                        {res.title}
+                      </h3>
+                      <p className="result-desc">{res.desc}</p>
+                      
+                      {/* Renderização dos sitelinks estruturados premium para Nexus Corporation */}
+                      {res.isNexusCorp && (
+                        <div className="nexus-sitelinks-container">
+                          <div className="sitelink-item" onClick={() => navigateTo('nexus.corp/li-chen')}>
+                            <h4>Dra. Li Chen</h4>
+                            <p>Ex-Diretora de IA e backdoor do terminal.</p>
+                          </div>
+                          <div className="sitelink-item" onClick={() => navigateTo('nexus.corp/marcus-webb')}>
+                            <h4>Gen. Marcus Webb</h4>
+                            <p>Comandante de silos e de chaves táticas.</p>
+                          </div>
+                          <div className="sitelink-item" onClick={() => navigateTo('nexus.corp/project-defcon1')}>
+                            <h4>Projeto DEFCON-1</h4>
+                            <p>Defesas e protocolos nucleares autônomos.</p>
+                          </div>
+                          <div className="sitelink-item" onClick={() => navigateTo('shadow-forum.net/puzzles')}>
+                            <h4>Mainframe Central</h4>
+                            <p>Exploits de cofre do Banco Federal e hacks.</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Coluna do Knowledge Graph (Painel de Informações Laterais) */}
+                {renderKnowledgeGraph(term) && (
+                  <div className="results-knowledge-col">
+                    {renderKnowledgeGraph(term)}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {searchSubTab === 'images' && renderImagesTab(term)}
+          {searchSubTab === 'news' && renderNewsTab(term)}
+          {searchSubTab === 'videos' && renderVideosTab(term)}
+        </div>
+      );
+    }{/* Coluna do Knowledge Graph (Painel de Informações Laterais) */}
             {renderKnowledgeGraph(term) && (
               <div className="results-knowledge-col">
                 {renderKnowledgeGraph(term)}

@@ -34,7 +34,13 @@ export default function ControlPanel() {
     cores: 'N/A',
     ram: 'N/A',
     resolution: 'N/A',
+    viewport: 'N/A',
     network: 'Online',
+    gpu: 'Detectando...',
+    battery: 'Acessando...',
+    language: 'Detectando...',
+    theme: 'Detectando...',
+    ping: 'Medindo...'
   });
 
   // Player de Música Synthwave
@@ -70,12 +76,108 @@ export default function ControlPanel() {
     const resolution = `${window.screen.width} x ${window.screen.height}`;
     
     let network = 'Conectado';
+    let rawPing = Math.floor(12 + Math.random() * 18);
     if (navigator.connection) {
       const conn = navigator.connection;
       network = `${conn.effectiveType?.toUpperCase() || '4G'} (${conn.downlink ? conn.downlink + ' Mbps' : 'Rápida'})`;
+      if (conn.rtt) {
+        rawPing = conn.rtt;
+      }
     }
 
-    setHostInfo({ os, browser, cores, ram, resolution, network });
+    // Extração real de GPU via WebGL
+    let gpu = 'Desconhecida (Geral)';
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+          gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          // Deixar a string mais legível e elegante
+          gpu = gpu.replace(/ANGLE \((.*)\)/, '$1').replace(/Direct3D11 vs_5_0 ps_5_0/, '').trim();
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao ler GPU:', e);
+    }
+
+    // Idioma
+    const userLang = navigator.language || 'pt-BR';
+    let language = userLang;
+    if (userLang.startsWith('pt')) language = 'Português (Brasil)';
+    else if (userLang.startsWith('en')) language = 'Inglês (EUA)';
+    else if (userLang.startsWith('es')) language = 'Espanhol';
+    else if (userLang.startsWith('fr')) language = 'Francês';
+    else if (userLang.startsWith('de')) language = 'Alemão';
+    else if (userLang.startsWith('ja')) language = 'Japonês';
+
+    // Preferência de tema do SO
+    const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'Escuro (Dark)' : 'Claro (Light)';
+
+    // Definir as telemetrias estáveis iniciais
+    setHostInfo(prev => ({
+      ...prev,
+      os,
+      browser,
+      cores,
+      ram,
+      resolution,
+      network,
+      gpu,
+      language,
+      theme,
+      ping: `${rawPing} ms`
+    }));
+
+    // Bateria (Opcional, se suportado por notebooks)
+    if (navigator.getBattery) {
+      navigator.getBattery().then(bat => {
+        const updateBattery = () => {
+          const pct = Math.round(bat.level * 100);
+          const state = bat.charging ? 'Carregando ⚡' : 'Na Bateria 🔋';
+          setHostInfo(prev => ({
+            ...prev,
+            battery: `${pct}% (${state})`
+          }));
+        };
+        updateBattery();
+        bat.addEventListener('chargingchange', updateBattery);
+        bat.addEventListener('levelchange', updateBattery);
+      }).catch(() => {
+        setHostInfo(prev => ({ ...prev, battery: 'N/A (Desktop/AC)' }));
+      });
+    } else {
+      setHostInfo(prev => ({ ...prev, battery: 'N/A (Alimentação AC)' }));
+    }
+
+    // Redimensionamento em tempo real do Viewport do navegador
+    const updateViewport = () => {
+      setHostInfo(prev => ({
+        ...prev,
+        viewport: `${window.innerWidth} x ${window.innerHeight}`
+      }));
+    };
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+
+    // Oscilação e atualização simulada realista do Ping da rede
+    const pingInterval = setInterval(() => {
+      setHostInfo(prev => {
+        const currentPingNum = parseInt(prev.ping) || 20;
+        const change = Math.floor((Math.random() - 0.5) * 6);
+        const nextPing = Math.max(5, Math.min(120, currentPingNum + change));
+        return {
+          ...prev,
+          ping: `${nextPing} ms`
+        };
+      });
+    }, 3000);
+
+    return () => {
+      window.removeEventListener('resize', updateViewport);
+      clearInterval(pingInterval);
+    };
   }, []);
 
   // Efeito para simular telemetria do sistema
@@ -411,20 +513,44 @@ export default function ControlPanel() {
                   <span className="spec-val highlight-cyan">{hostInfo.os}</span>
                 </div>
                 <div className="host-spec-item">
+                  <span className="spec-label">Placa de Vídeo (GPU):</span>
+                  <span className="spec-val text-green truncate-text" title={hostInfo.gpu}>{hostInfo.gpu}</span>
+                </div>
+                <div className="host-spec-item">
                   <span className="spec-label">Processador Físico:</span>
                   <span className="spec-val">{hostInfo.cores} Cores Lógicos</span>
                 </div>
                 <div className="host-spec-item">
-                  <span className="spec-label">Memória Host:</span>
+                  <span className="spec-label">Memória RAM Host:</span>
                   <span className="spec-val">{hostInfo.ram}</span>
                 </div>
                 <div className="host-spec-item">
-                  <span className="spec-label">Monitor Principal:</span>
+                  <span className="spec-label">Resolução Monitor:</span>
                   <span className="spec-val">{hostInfo.resolution}</span>
                 </div>
                 <div className="host-spec-item">
-                  <span className="spec-label">Link de Internet:</span>
-                  <span className="spec-val text-green">{hostInfo.network}</span>
+                  <span className="spec-label">Área Útil (Navegador):</span>
+                  <span className="spec-val highlight-cyan">{hostInfo.viewport}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Conexão Host:</span>
+                  <span className="spec-val">{hostInfo.network}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Latência (Ping RTT):</span>
+                  <span className="spec-val highlight-red">{hostInfo.ping}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Nível da Bateria:</span>
+                  <span className="spec-val">{hostInfo.battery}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Idioma do Sistema:</span>
+                  <span className="spec-val">{hostInfo.language}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Tema de Cores SO:</span>
+                  <span className="spec-val">{hostInfo.theme}</span>
                 </div>
                 <div className="host-spec-item">
                   <span className="spec-label">Navegador Host:</span>

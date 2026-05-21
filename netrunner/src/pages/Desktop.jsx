@@ -62,12 +62,13 @@ export default function Desktop() {
   return (
     <div className={`desktop wallpaper-${wallpaper}`}>
       
-      {/* Matrix Rain Canvas de Papel de Parede */}
-      {wallpaper === 'matrix' ? (
-        <MatrixRain />
-      ) : (
-        <div className={`desktop-bg ${state.alertMode ? 'alert-mode' : ''} bg-${wallpaper}`} />
-      )}
+      {/* Sistema de Papéis de Parede com Cross-Fade Dinâmico */}
+      <div className="desktop-wallpapers-container">
+        <div className={`desktop-bg bg-cyberpunk ${wallpaper === 'cyberpunk' ? 'active' : ''} ${state.alertMode ? 'alert-mode' : ''}`} />
+        <div className={`desktop-bg bg-tokyo ${wallpaper === 'tokyo' ? 'active' : ''}`} />
+        <div className={`desktop-bg bg-emergency ${wallpaper === 'emergency' ? 'active' : ''}`} />
+        {wallpaper === 'matrix' && <MatrixRain />}
+      </div>
 
       {/* Floating particles (somente se não for a Matrix Rain que já enche a tela) */}
       {wallpaper !== 'matrix' && <ParticlesBackground />}
