@@ -87,6 +87,7 @@ const initialState = {
 
   // Windows
   openWindows: [],
+  minimizedWindows: [],
   focusedWindow: null,
 
   // Narrative
@@ -179,24 +180,55 @@ function reducer(state, action) {
 
     case 'OPEN_WINDOW': {
       if (state.openWindows.includes(action.id)) {
-        return { ...state, focusedWindow: action.id };
+        return {
+          ...state,
+          minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
+          focusedWindow: action.id
+        };
       }
       return {
         ...state,
         openWindows: [...state.openWindows, action.id],
+        minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
         focusedWindow: action.id,
       };
     }
 
-    case 'CLOSE_WINDOW':
+    case 'CLOSE_WINDOW': {
+      const remaining = state.openWindows.filter((w) => w !== action.id);
+      const newMinimized = state.minimizedWindows.filter((w) => w !== action.id);
       return {
         ...state,
-        openWindows: state.openWindows.filter((w) => w !== action.id),
-        focusedWindow: state.openWindows.filter((w) => w !== action.id).slice(-1)[0] || null,
+        openWindows: remaining,
+        minimizedWindows: newMinimized,
+        focusedWindow: remaining.filter((w) => !newMinimized.includes(w)).slice(-1)[0] || null,
       };
+    }
 
     case 'FOCUS_WINDOW':
-      return { ...state, focusedWindow: action.id };
+      return {
+        ...state,
+        minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
+        focusedWindow: action.id
+      };
+
+    case 'MINIMIZE_WINDOW':
+      return {
+        ...state,
+        minimizedWindows: state.minimizedWindows.includes(action.id)
+          ? state.minimizedWindows
+          : [...state.minimizedWindows, action.id],
+        focusedWindow: state.focusedWindow === action.id
+          ? (state.openWindows.filter((w) => w !== action.id && !state.minimizedWindows.includes(w)).slice(-1)[0] || null)
+          : state.focusedWindow
+      };
+
+    case 'RESTORE_WINDOW':
+      return {
+        ...state,
+        minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
+        focusedWindow: action.id
+      };
 
     case 'PUSH_NARRATIVE':
       return { ...state, narrativeQueue: [...state.narrativeQueue, action.narrative] };

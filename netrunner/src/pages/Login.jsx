@@ -14,18 +14,34 @@ export default function Login() {
   const [savedProgress, setSavedProgress] = useState(null);
 
   useEffect(() => {
-    // Check for saved progress after email login
-    if (user && !user.offline && user.email && user.email.includes('@')) {
-      loadGameProgress(user).then((saved) => {
+    if (!user) return;
+
+    // Se for um usuário offline, anônimo ou sem email estruturado, inicia um novo jogo imediatamente
+    if (user.offline || user.isAnonymous || !user.email || !user.email.includes('@')) {
+      startNewGame();
+      return;
+    }
+
+    // Se for um usuário autenticado online com e-mail (Google ou E-mail/Senha)
+    setLoading(true);
+    loadGameProgress(user)
+      .then((saved) => {
         if (saved && saved.score > 0) {
           setSavedProgress(saved);
           setMode('resume');
         } else {
-          // No saved progress, start new game
+          // Sem progresso prévio, inicia novo jogo
           startNewGame();
         }
+      })
+      .catch((err) => {
+        console.warn('Erro ao carregar progresso salvo:', err);
+        // Fallback seguro: inicia jogo novo mesmo se o carregamento falhar
+        startNewGame();
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    }
   }, [user, loadGameProgress]);
 
   const startNewGame = () => {
@@ -56,20 +72,15 @@ export default function Login() {
     dispatch({ type: 'SET_PHASE', phase: 'desktop' });
   };
 
-  const startGame = () => {
-    startNewGame();
-  };
-
   const handleAnonymous = async () => {
     setLoading(true);
     setError('');
     try {
       await loginAnonymous(codename || 'GHOST');
-      startGame();
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleGoogle = async () => {
@@ -77,14 +88,10 @@ export default function Login() {
     setError('');
     try {
       await loginGoogle();
-      const isOffline = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === 'demo-key';
-      if (isOffline) {
-        startGame();
-      }
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleEmail = async (e) => {
@@ -93,11 +100,10 @@ export default function Login() {
     setError('');
     try {
       await loginEmail(email, password, codename || email.split('@')[0]);
-      startGame();
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
