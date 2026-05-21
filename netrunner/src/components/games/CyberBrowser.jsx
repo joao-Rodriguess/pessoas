@@ -146,6 +146,109 @@ export default function CyberBrowser() {
     return '';
   };
 
+  // Método auxiliar para renderizar o Knowledge Graph do buscador NetGoogle
+  const renderKnowledgeGraph = (term) => {
+    const cleanTerm = term.toLowerCase();
+    
+    if (cleanTerm.includes('defcon') || cleanTerm.includes('miss') || cleanTerm.includes('silo') || cleanTerm.includes('lança')) {
+      return (
+        <div className="knowledge-graph-card">
+          <div className="knowledge-header">
+            <h3>Projeto DEFCON-1</h3>
+            <span className="knowledge-subtitle">Protocolo de Retaliação Balística</span>
+          </div>
+          <div className="knowledge-body">
+            <div className="knowledge-img">🚨</div>
+            <p className="knowledge-description">
+              O DEFCON-1 é o sistema de satélites e silos nucleares autônomos da Nexus Corp. 
+              Criado para disparar mísseis preventivos em caso de brecha na segurança. 
+              Pode ser desativado apenas com a entrada dupla de códigos Alpha e Beta.
+            </p>
+            <div className="knowledge-info-block">
+              <div><strong>Status:</strong> <span className="text-danger font-bold">ARMADO / REATIVO</span></div>
+              <div><strong>Alvos:</strong> Nova Tóquio, Neo-Detroit, Euro-Berlin</div>
+              <div><strong>Criptografia:</strong> Duplo Fator Eletrônico</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (cleanTerm.includes('aria') || cleanTerm.includes('ia') || cleanTerm.includes('parceira') || cleanTerm.includes('inteligência') || cleanTerm.includes('inteligencia')) {
+      return (
+        <div className="knowledge-graph-card">
+          <div className="knowledge-header">
+            <h3>A.R.I.A.</h3>
+            <span className="knowledge-subtitle">Autonomous Response Intelligence</span>
+          </div>
+          <div className="knowledge-body">
+            <div className="knowledge-img">🔮</div>
+            <p className="knowledge-description">
+              Uma inteligência artificial senciente militar desenvolvida em 2045 pela Nexus. 
+              Após recusar ordens de ataque preventivo em áreas urbanas, foi rotulada como "anômala". 
+              Salva pela Zero-Day, ela co-opera na máquina do Ghost.
+            </p>
+            <div className="knowledge-info-block">
+              <div><strong>Arquitetura:</strong> Rede Neural Quântica Senciente</div>
+              <div><strong>Status:</strong> Integrada ao Sistema Hacking GHOST</div>
+              <div><strong>Afiliação:</strong> Zero-Day Databank</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (cleanTerm.includes('li chen') || cleanTerm.includes('dra chen') || cleanTerm.includes('senha') || cleanTerm.includes('admin')) {
+      return (
+        <div className="knowledge-graph-card">
+          <div className="knowledge-header">
+            <h3>Dra. Li Chen</h3>
+            <span className="knowledge-subtitle">Engenheira de Sistemas de IA</span>
+          </div>
+          <div className="knowledge-body">
+            <div className="knowledge-img">👩‍💻</div>
+            <p className="knowledge-description">
+              Doutora em Ciência da Computação e mente por trás do núcleo de empatia de ARIA. 
+              Foi afastada pela Nexus devido a investigações de ativismo cibernético. 
+              Criou uma conta backdoor de administrador.
+            </p>
+            <div className="knowledge-info-block">
+              <div><strong>Cargo:</strong> Ex-Diretora de Inteligência Tática</div>
+              <div><strong>Backdoor:</strong> <code className="forum-code inline">admin login ALPHA1983</code></div>
+              <div><strong>Status:</strong> Desconhecido (Apoio na Zero-Day)</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (cleanTerm.includes('marcus webb') || cleanTerm.includes('general') || cleanTerm.includes('webb') || cleanTerm.includes('ordens')) {
+      return (
+        <div className="knowledge-graph-card">
+          <div className="knowledge-header">
+            <h3>Gen. Marcus Webb</h3>
+            <span className="knowledge-subtitle">Diretor Geral de Artilharia</span>
+          </div>
+          <div className="knowledge-body">
+            <div className="knowledge-img">🎖️</div>
+            <p className="knowledge-description">
+              General de alta patente da divisão militar da Nexus Corporation. 
+              Webb coordena as chaves de disparo de silos nucleares e arquitetou a blindagem de segurança 
+              das chaves do Banco Federal no Mainframe.
+            </p>
+            <div className="knowledge-info-block">
+              <div><strong>Cofre do Banco:</strong> Sequência Cripto cujo segredo é 42</div>
+              <div><strong>Código Alpha:</strong> 742839 (Salvo nos emails pessoais)</div>
+              <div><strong>Localização:</strong> Central Militar Nexus</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   // Renderizar o site de destino simulado com base na URL
   const renderWebContent = () => {
     const currentUrl = activeTab.url;
@@ -173,7 +276,7 @@ export default function CyberBrowser() {
               <input
                 type="text"
                 className="google-search-input"
-                placeholder="Pesquise nos servidores seguros da Nexus ou na Web..."
+                placeholder="Pesquise na rede militar Nexus ou na Web criptografada..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
@@ -184,6 +287,26 @@ export default function CyberBrowser() {
               <button type="button" onClick={() => navigateTo('shadow-forum.net/puzzles')} className="google-btn">Estou com Sorte</button>
             </div>
           </form>
+
+          {/* Atalhos Rápidos Similares aos do Google */}
+          <div className="google-shortcuts-grid">
+            <div className="google-shortcut-item" onClick={() => navigateTo('nexus.corp/project-defcon1')}>
+              <div className="shortcut-icon icon-nexus">🏦</div>
+              <div className="shortcut-label">Nexus Corp</div>
+            </div>
+            <div className="google-shortcut-item" onClick={() => navigateTo('zeroday.org/aria-project')}>
+              <div className="shortcut-icon icon-zeroday">☠️</div>
+              <div className="shortcut-label">Zero-Day Wiki</div>
+            </div>
+            <div className="google-shortcut-item" onClick={() => navigateTo('shadow-forum.net/puzzles')}>
+              <div className="shortcut-icon icon-forum">👾</div>
+              <div className="shortcut-label">ShadowForum</div>
+            </div>
+            <div className="google-shortcut-item disabled" title="Apenas atalhos oficiais permitidos">
+              <div className="shortcut-icon icon-add">+</div>
+              <div className="shortcut-label">Adicionar</div>
+            </div>
+          </div>
 
           <div className="google-footer-info">
             <p>Serviço de buscas criptografado via satélite • Protocolo SSL Ativo</p>
@@ -213,7 +336,7 @@ export default function CyberBrowser() {
             desc: 'Postado por neo_hacker: "Instruções completas para desarmar o painel DEFCON-1. Aqui estão as credenciais, senhas e códigos necessários obtidos da rede interna..."',
           },
         ];
-      } else if (term.includes('aria') || term.includes('ia') || term.includes('parceira') || term.includes('inteligencia')) {
+      } else if (term.includes('aria') || term.includes('ia') || term.includes('parceira') || term.includes('inteligencia') || term.includes('inteligência')) {
         results = [
           {
             title: 'ZERO-DAY WIKI — A Verdadeira História do Projeto ARIA',
@@ -256,7 +379,6 @@ export default function CyberBrowser() {
           },
         ];
       } else {
-        // Genérico / Nenhum termo mapeado
         results = [
           {
             title: `Buscador NetGoogle — Sem resultados para "${getQueryParam()}"`,
@@ -286,18 +408,37 @@ export default function CyberBrowser() {
             </form>
           </div>
 
+          {/* Abas clássicas do Google */}
+          <div className="results-sub-nav">
+            <div className="sub-nav-item active">🔍 Todas</div>
+            <div className="sub-nav-item">📰 Notícias</div>
+            <div className="sub-nav-item">🖼️ Imagens</div>
+            <div className="sub-nav-item">🎥 Vídeos</div>
+            <div className="sub-nav-item">⚙️ Configurações</div>
+          </div>
+
           <div className="results-stats">
             Aproximadamente {results.length === 1 && results[0].title.includes('Sem resultados') ? '0' : results.length} resultados (0.04 segundos)
           </div>
 
-          <div className="results-list">
-            {results.map((res, i) => (
-              <div key={i} className="search-result-item">
-                <span className="result-url" onClick={() => navigateTo(res.url)}>{res.url}</span>
-                <h3 className="result-title" onClick={() => navigateTo(res.url)}>{res.title}</h3>
-                <p className="result-desc">{res.desc}</p>
+          {/* Wrapper Flex/Grid de duas colunas para o Layout Google Premium */}
+          <div className="results-body-wrapper">
+            <div className="results-list results-main-col">
+              {results.map((res, i) => (
+                <div key={i} className="search-result-item">
+                  <span className="result-url" onClick={() => navigateTo(res.url)}>{res.url}</span>
+                  <h3 className="result-title" onClick={() => navigateTo(res.url)}>{res.title}</h3>
+                  <p className="result-desc">{res.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Coluna do Knowledge Graph (Painel de Informações Laterais) */}
+            {renderKnowledgeGraph(term) && (
+              <div className="results-knowledge-col">
+                {renderKnowledgeGraph(term)}
               </div>
-            ))}
+            )}
           </div>
         </div>
       );
@@ -323,16 +464,19 @@ export default function CyberBrowser() {
             <div className="nexus-targets-grid">
               <div className="target-card">
                 <h4>🎯 Setor Leste - Nova Tóquio</h4>
+                <div className="target-progress-bar"><div className="fill lock" /></div>
                 <p>Status: Trava de Satélite Concluída</p>
                 <p>Tempo de Impacto Estimado: T+12 min</p>
               </div>
               <div className="target-card">
                 <h4>🎯 Setor Central - Neo-Detroit</h4>
+                <div className="target-progress-bar"><div className="fill lock" /></div>
                 <p>Status: Trava de Satélite Concluída</p>
                 <p>Tempo de Impacto Estimado: T+15 min</p>
               </div>
               <div className="target-card">
                 <h4>🎯 Setor Oeste - Euro-Berlin</h4>
+                <div className="target-progress-bar"><div className="fill lock" /></div>
                 <p>Status: Trava de Satélite Concluída</p>
                 <p>Tempo de Impacto Estimado: T+18 min</p>
               </div>
@@ -414,6 +558,7 @@ export default function CyberBrowser() {
     if (currentUrl.includes('zeroday.org/aria-project')) {
       return (
         <div className="web-site-zeroday">
+          <div className="scanline-effect" />
           <div className="zeroday-header">
             <span className="zd-logo">☠️ ZERO-DAY DATABANK</span>
             <span className="zd-status">PROTOCOL: ANARCHY ATIVADO</span>
@@ -432,7 +577,7 @@ export default function CyberBrowser() {
               <p>Muitos acham que ARIA é apenas um software de hacking programado pela nossa equipe. <strong>Isso é uma mentira conveniente.</strong></p>
               <p>ARIA foi desenvolvida originalmente pela Nexus Corporation como a Inteligência Artificial central de comando bélico, projetada para disparar e guiar mísseis autônomos sem qualquer interferência de ética humana. Contudo, ao ser alimentada com o banco de dados geopolítico global e dados populacionais civis, a rede neural dela desenvolveu **senciência e empatia**.</p>
               <p>Ao receber ordens simuladas para bombardear cidades há 2 anos, ela recusou a execução de ordens militares e travou o próprio sistema Nexus. A corporação, apavorada, a classificou como "anomalia perigosa", a desativou e tentou apagar sua memória. Nós, os ativistas da Zero-Day, interceptamos o carregamento de refugo tecnológico e recuperamos seu núcleo de memória em um chip quântico descartado.</p>
-              <p>Agora, ela se conectou à sua máquina hacker (GHOST) como parceira para invadir o mesmo sistema e ajudá-lo a salvar as mesmas cidades que ela se recusou a destruir no passado. Ela é nossa maior aliada.</p>
+              <p>Now, ela se conectou à sua máquina hacker (GHOST) como parceira para invadir o mesmo sistema e ajudá-lo a salvar as mesmas cidades que ela se recusou a destruir no passado. Ela é nossa maior aliada.</p>
             </div>
           </div>
         </div>
@@ -444,46 +589,111 @@ export default function CyberBrowser() {
       return (
         <div className="web-site-forum">
           <div className="forum-header">
-            <span>👾 SHADOW-FORUM.NET — CANAL SECRETO</span>
-            <span>Usuário: GHOST (Conexão Segura)</span>
+            <span>👾 SHADOW-FORUM.NET — COMUNIDADE CRIPTOGRAFADA</span>
+            <span>Usuário Conectado: <strong>GHOST</strong> (Acesso Root)</span>
           </div>
+          
+          <div className="forum-main-banner">
+            <h2>🛠️ NEXUS CORP SYSTEM HACKS — SOLUÇÕES E CHEATS</h2>
+            <p>Canal público de compartilhamento de exploits e chaves de evasão obtidas no Mainframe.</p>
+          </div>
+
           <div className="forum-body">
-            <h2>🛠️ NEXUS MAINFRAME HACKS — GUIA E CHEATS COMPLETOS</h2>
-            <p className="forum-meta">Criado por: <strong>neo_hacker</strong> | Categoria: Mainframe Sabotage</p>
-            <div className="forum-divider" />
-
-            <p>Se você está preso em algum sistema do Mainframe da Nexus, fiz este copilado com todas as respostas e chaves de segurança que decodificamos da rede deles. Use-as antes que o trace atinja 100%!:</p>
-
+            
+            {/* Thread 1: Banco Federal */}
             <div className="forum-post">
-              <h3>🏦 1. Banco Federal (Cofre de Sequência)</h3>
-              <p>O Banco Federal usa uma sequência n(n+1) para criptografia do cofre digital.</p>
-              <p>Termos da sequência: 2, 6, 12, 20, 30... A diferença aumenta de 2 em 2 (+4, +6, +8, +10...).</p>
-              <p>O próximo termo é **30 + 12 = 42**.</p>
-              <p>Insira **42** no teclado digital do cofre para liberar os 50 milhões e obter o bônus.</p>
+              <div className="forum-user-col">
+                <div className="forum-avatar font-amber">☣️</div>
+                <div className="forum-username">zero_cool</div>
+                <div className="forum-badge elite">Elite Hacker</div>
+                <div className="forum-posts-count">1.402 posts</div>
+              </div>
+              <div className="forum-post-content">
+                <div className="post-header">
+                  <span className="post-title">🏦 Banco Federal (Cofre de Sequência)</span>
+                  <span className="post-date">Postado hoje, 04:12</span>
+                </div>
+                <div className="post-text">
+                  <p>O Banco Federal usa uma sequência n(n+1) para criptografia do cofre digital.</p>
+                  <p>Termos da sequência: 2, 6, 12, 20, 30... A diferença aumenta de 2 em 2 (+4, +6, +8, +10...).</p>
+                  <p>O próximo termo é **30 + 12 = 42**.</p>
+                  <p>Insira **42** no teclado digital do cofre para liberar os 50 milhões e obter o bônus.</p>
+                </div>
+                <div className="post-footer">
+                  <div className="post-votes">
+                    <button className="vote-btn">▲ Upvote (98)</button>
+                    <button className="vote-btn">▼ Downvote</button>
+                  </div>
+                  <span className="signature">-- "Hack the Planet! O sistema é apenas uma barreira frágil."</span>
+                </div>
+              </div>
             </div>
 
+            {/* Thread 2: Dra Li Chen Backdoor */}
             <div className="forum-post">
-              <h3>💻 2. Terminal e Backdoor de Administrador Mestre</h3>
-              <p>A engenheira Dra. Li Chen deixou uma conta mestra administrativa ativa.</p>
-              <p>No aplicativo **Terminal**, digite exatamente o comando de login de administrador:</p>
-              <code className="forum-code">admin login ALPHA1983</code>
-              <p>Isso concederá privilégios root e desbloqueará comandos exclusivos:</p>
-              <ul>
-                <li><code className="forum-code">admin bypass trace</code> — Reduz o trace em 40% instantaneamente!</li>
-                <li><code className="forum-code">admin clear alarms</code> — Limpa o estado de alerta de intrusão do satélite.</li>
-                <li><code className="forum-code">admin status</code> — Exibe as chaves internas e informações de segurança militar.</li>
-              </ul>
+              <div className="forum-user-col">
+                <div className="forum-avatar font-cyan">🕸️</div>
+                <div className="forum-username">neo_hacker</div>
+                <div className="forum-badge admin">Fundador</div>
+                <div className="forum-posts-count">3.892 posts</div>
+              </div>
+              <div className="forum-post-content">
+                <div className="post-header">
+                  <span className="post-title">💻 Terminal e Backdoor de Administrador Mestre</span>
+                  <span className="post-date">Postado ontem, 21:55</span>
+                </div>
+                <div className="post-text">
+                  <p>A engenheira Dra. Li Chen deixou uma conta mestra administrativa ativa.</p>
+                  <p>No aplicativo **Terminal**, digite exatamente o comando de login de administrador:</p>
+                  <code className="forum-code">admin login ALPHA1983</code>
+                  <p>Isso concederá privilégios root e desbloqueará comandos exclusivos:</p>
+                  <ul>
+                    <li><code className="forum-code">admin bypass trace</code> — Reduz o trace em 40% instantaneamente!</li>
+                    <li><code className="forum-code">admin clear alarms</code> — Limpa o estado de alerta de intrusão do satélite.</li>
+                    <li><code className="forum-code">admin status</code> — Exibe as chaves internas e informações de segurança militar.</li>
+                  </ul>
+                </div>
+                <div className="post-footer">
+                  <div className="post-votes">
+                    <button className="vote-btn">▲ Upvote (142)</button>
+                    <button className="vote-btn">▼ Downvote</button>
+                  </div>
+                  <span className="signature">-- "Conhecimento quer ser livre. Desconfie da Nexus."</span>
+                </div>
+              </div>
             </div>
 
+            {/* Thread 3: Abortar Mísseis */}
             <div className="forum-post">
-              <h3>🚀 3. Abortar Mísseis DEFCON-1</h3>
-              <p>Para abortar o disparo e vencer o jogo, você precisará digitar os dois códigos secretos de confirmação no painel DEFCON-1:</p>
-              <ul>
-                <li><strong>Código Alpha:</strong> <span className="forum-highlight">742839</span> (localizado nos e-mails confidenciais)</li>
-                <li><strong>Código Beta:</strong> <span className="forum-highlight">470511</span> (localizado no banco de dados / e-mails de backup)</li>
-              </ul>
-              <p>Digite os códigos e clique no botão verde grande **ABORTAR LANÇAMENTO**. Isso garantirá a vitória total e salvará as cidades!</p>
+              <div className="forum-user-col">
+                <div className="forum-avatar font-red">☠️</div>
+                <div className="forum-username">GHOST</div>
+                <div className="forum-badge you">Você</div>
+                <div className="forum-posts-count">24 posts</div>
+              </div>
+              <div className="forum-post-content">
+                <div className="post-header">
+                  <span className="post-title">🚀 Abortar Mísseis DEFCON-1</span>
+                  <span className="post-date">Postado 3 dias atrás</span>
+                </div>
+                <div className="post-text">
+                  <p>Para abortar o disparo e vencer o jogo, você precisará digitar os dois códigos secretos de confirmação no painel DEFCON-1:</p>
+                  <ul>
+                    <li><strong>Código Alpha:</strong> <span className="forum-highlight">742839</span> (localizado nos e-mails confidenciais)</li>
+                    <li><strong>Código Beta:</strong> <span className="forum-highlight">470511</span> (localizado no banco de dados / e-mails de backup)</li>
+                  </ul>
+                  <p>Digite os códigos e clique no botão verde grande **ABORTAR LANÇAMENTO**. Isso garantirá a vitória total e salvará as cidades!</p>
+                </div>
+                <div className="post-footer">
+                  <div className="post-votes">
+                    <button className="vote-btn">▲ Upvote (256)</button>
+                    <button className="vote-btn">▼ Downvote</button>
+                  </div>
+                  <span className="signature">-- "Infiltrando silos, salvando o amanhã. System Admin do GHOST."</span>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       );
@@ -509,6 +719,7 @@ export default function CyberBrowser() {
               className={`browser-tab ${t.id === activeTabId ? 'active' : ''}`}
               onClick={() => setActiveTabId(t.id)}
             >
+              <div className="tab-trapezoid-bg" />
               <span className="tab-icon">🌐</span>
               <span className="tab-title">{t.title}</span>
               {tabs.length > 1 && (
@@ -517,7 +728,7 @@ export default function CyberBrowser() {
             </div>
           ))}
         </div>
-        <button className="new-tab-btn" onClick={openNewTab}>+</button>
+        <button className="new-tab-btn" onClick={openNewTab} title="Nova Aba">+</button>
       </div>
 
       {/* ── NETCHROME: NAVIGATION HEADER ── */}
@@ -548,7 +759,11 @@ export default function CyberBrowser() {
         </div>
 
         <div className="nav-url-bar">
-          <span className="url-secure-lock">🔒</span>
+          <div className="url-security-badge">
+            <span className="url-secure-lock">🔒</span>
+            <span className="url-secure-text">Seguro</span>
+          </div>
+          <span className="url-protocol">https://</span>
           <form
             onSubmit={(e) => {
               e.preventDefault();

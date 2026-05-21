@@ -27,6 +27,16 @@ export default function ControlPanel() {
   const [ramUsage, setRamUsage] = useState(5.7);
   const [networkSpeed, setNetworkSpeed] = useState(13.37);
 
+  // Telemetria Física (Computador Real)
+  const [hostInfo, setHostInfo] = useState({
+    os: 'Detectando...',
+    browser: 'Detectando...',
+    cores: 'N/A',
+    ram: 'N/A',
+    resolution: 'N/A',
+    network: 'Online',
+  });
+
   // Player de Música Synthwave
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState('Protocolo Shadow-Net');
@@ -37,6 +47,36 @@ export default function ControlPanel() {
   const canvasRef = useRef(null);
   const animationFrameId = useRef(null);
   const synthIntervalRef = useRef(null);
+
+  // Efeito para obter telemetria física real do host do usuário
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    let os = 'Outro OS';
+    if (ua.indexOf('Win') !== -1) os = 'Windows 10/11';
+    else if (ua.indexOf('Mac') !== -1) os = 'macOS (Darwin)';
+    else if (ua.indexOf('X11') !== -1) os = 'UNIX/Linux';
+    else if (ua.indexOf('Linux') !== -1) os = 'Linux OS';
+
+    let browser = 'Outro';
+    if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+    else if (ua.indexOf('SamsungBrowser') !== -1) browser = 'Samsung Browser';
+    else if (ua.indexOf('Opera') !== -1 || ua.indexOf('OPR') !== -1) browser = 'Opera';
+    else if (ua.indexOf('Edge') !== -1 || ua.indexOf('Edg') !== -1) browser = 'Edge';
+    else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome/Chromium';
+    else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+
+    const cores = navigator.hardwareConcurrency || 'N/A';
+    const ram = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : '8 GB (Simulado)';
+    const resolution = `${window.screen.width} x ${window.screen.height}`;
+    
+    let network = 'Conectado';
+    if (navigator.connection) {
+      const conn = navigator.connection;
+      network = `${conn.effectiveType?.toUpperCase() || '4G'} (${conn.downlink ? conn.downlink + ' Mbps' : 'Rápida'})`;
+    }
+
+    setHostInfo({ os, browser, cores, ram, resolution, network });
+  }, []);
 
   // Efeito para simular telemetria do sistema
   useEffect(() => {
@@ -322,38 +362,77 @@ export default function ControlPanel() {
 
         {/* Seção 4: Telemetria e Hardware */}
         <div className="panel-card">
-          <div className="card-title">💾 TELEMETRIA DO HARDWARE (CPU/RAM)</div>
-          <div className="telemetry-panel">
-            <div className="telemetry-bar-item">
-              <div className="telemetry-labels">
-                <span>Processador (CPU)</span>
-                <span>{cpuUsage}%</span>
+          <div className="card-title">💾 TELEMETRIA DE SISTEMA E DADOS DO HOST</div>
+          <div className="telemetry-split-container">
+            
+            {/* Coluna 1: Telemetrias em tempo real (Simuladas) */}
+            <div className="telemetry-panel">
+              <div className="panel-subtitle">🔴 TELEMETRIA DA SHADOW-NET</div>
+              
+              <div className="telemetry-bar-item">
+                <div className="telemetry-labels">
+                  <span>Processador (CPU Virt.)</span>
+                  <span>{cpuUsage}%</span>
+                </div>
+                <div className="bar-bg">
+                  <div className="bar-fill animate-width" style={{ width: `${cpuUsage}%` }} />
+                </div>
               </div>
-              <div className="bar-bg">
-                <div className="bar-fill animate-width" style={{ width: `${cpuUsage}%` }} />
+
+              <div className="telemetry-bar-item">
+                <div className="telemetry-labels">
+                  <span>Memória RAM Cripto</span>
+                  <span>{ramUsage} GB / 8.0 GB</span>
+                </div>
+                <div className="bar-bg">
+                  <div className="bar-fill memory animate-width" style={{ width: `${(ramUsage / 8) * 100}%` }} />
+                </div>
+              </div>
+
+              <div className="telemetry-row-data">
+                <div className="data-box">
+                  <div className="data-value">{networkSpeed} Mb/s</div>
+                  <div className="data-label">Taxa Shadow-Net</div>
+                </div>
+                <div className="data-box">
+                  <div className="data-value">CONECTADO</div>
+                  <div className="data-label">Status Gateway</div>
+                </div>
               </div>
             </div>
 
-            <div className="telemetry-bar-item">
-              <div className="telemetry-labels">
-                <span>Memória Reservada (RAM)</span>
-                <span>{ramUsage} GB / 8.0 GB</span>
-              </div>
-              <div className="bar-bg">
-                <div className="bar-fill memory animate-width" style={{ width: `${(ramUsage / 8) * 100}%` }} />
+            {/* Coluna 2: Dados Reais do Host (Físico) */}
+            <div className="host-real-telemetry">
+              <div className="panel-subtitle">🤖 DADOS DO COMPUTADOR HOST (REAL)</div>
+              
+              <div className="host-specs-list">
+                <div className="host-spec-item">
+                  <span className="spec-label">Sist. Operacional:</span>
+                  <span className="spec-val highlight-cyan">{hostInfo.os}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Processador Físico:</span>
+                  <span className="spec-val">{hostInfo.cores} Cores Lógicos</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Memória Host:</span>
+                  <span className="spec-val">{hostInfo.ram}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Monitor Principal:</span>
+                  <span className="spec-val">{hostInfo.resolution}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Link de Internet:</span>
+                  <span className="spec-val text-green">{hostInfo.network}</span>
+                </div>
+                <div className="host-spec-item">
+                  <span className="spec-label">Navegador Host:</span>
+                  <span className="spec-val">{hostInfo.browser}</span>
+                </div>
               </div>
             </div>
 
-            <div className="telemetry-row-data">
-              <div className="data-box">
-                <div className="data-value">{networkSpeed} Mb/s</div>
-                <div className="data-label">Taxa Shadow-Net</div>
-              </div>
-              <div className="data-box">
-                <div className="data-value">CONECTADO</div>
-                <div className="data-label">Status Gateway</div>
-              </div>
-            </div>
           </div>
         </div>
 
