@@ -346,7 +346,7 @@ export function GameProvider({ children }) {
       if (traceRef.current) clearInterval(traceRef.current);
       traceRef.current = setInterval(() => {
         if (!state.proxyActive) {
-          const amount = state.vpnActive ? 0.5 : 1;
+          const amount = state.vpnActive ? 0.02 : 0.05;
           dispatch({ type: 'ADD_TRACE', amount });
         }
       }, 1000);
