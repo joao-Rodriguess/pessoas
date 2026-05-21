@@ -102,6 +102,12 @@ const initialState = {
 
   // Game Over flag
   gameOver: false,
+
+  // ARIA & DEFCON expansion states
+  ariaHealth: 100,
+  ariaGlitchActive: false,
+  webbAssistantHacked: false,
+  selectedEnding: null,
 };
 
 function reducer(state, action) {
@@ -284,12 +290,46 @@ function reducer(state, action) {
       };
     }
 
+    case 'DEGRADE_ARIA': {
+      if (state.gameOver || state.missileAborted) return state;
+      const newHealth = Math.max(0, state.ariaHealth - action.amount);
+      const glitchActive = newHealth < 60;
+      return { ...state, ariaHealth: newHealth, ariaGlitchActive: glitchActive };
+    }
+
+    case 'RESTORE_ARIA': {
+      const newTrace = Math.min(100, state.trace + 15);
+      const newAlert = newTrace >= 70;
+      const isGameOver = newTrace >= 100;
+      return {
+        ...state,
+        ariaHealth: 100,
+        ariaGlitchActive: false,
+        trace: newTrace,
+        alertMode: newAlert || state.alertMode,
+        ...(isGameOver && { phase: 'gameover', gameOver: true })
+      };
+    }
+
+    case 'SET_WEBB_HACKED':
+      return { ...state, webbAssistantHacked: true };
+
+    case 'SELECT_ENDING':
+      return {
+        ...state,
+        selectedEnding: action.ending,
+        missileAborted: true,
+        countdown: null,
+        phase: 'victory',
+        gameOver: true
+      };
+
     case 'RESET':
       return { ...initialState };
 
     default:
       return state;
-  }
+    }
 }
 
 export function GameProvider({ children }) {
@@ -324,6 +364,18 @@ export function GameProvider({ children }) {
     }
     return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
   }, [state.countdown, state.gameOver]);
+
+  // ARIA health decay timer
+  const ariaDecayRef = useRef(null);
+  useEffect(() => {
+    if (state.phase === 'desktop' && !state.gameOver && !state.missileAborted) {
+      if (ariaDecayRef.current) clearInterval(ariaDecayRef.current);
+      ariaDecayRef.current = setInterval(() => {
+        dispatch({ type: 'DEGRADE_ARIA', amount: 3 });
+      }, 10000); // 3% a cada 10 segundos
+    }
+    return () => { if (ariaDecayRef.current) clearInterval(ariaDecayRef.current); };
+  }, [state.phase, state.gameOver, state.missileAborted]);
 
   // Leaderboard listener
   useEffect(() => {

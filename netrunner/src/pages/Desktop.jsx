@@ -19,6 +19,7 @@ import Calculator from '../components/games/Calculator';
 import Notepad from '../components/games/Notepad';
 import CyberBrowser from '../components/games/CyberBrowser';
 import ControlPanel from '../components/games/ControlPanel';
+import AriaSystem from '../components/games/AriaSystem';
 
 const DESKTOP_ICONS = [
   { id: 'browser', icon: '🌐', label: 'NetChrome' },
@@ -26,6 +27,7 @@ const DESKTOP_ICONS = [
   { id: 'terminal', icon: '💻', label: 'Terminal' },
   { id: 'hack', icon: '👾', label: 'HackTools' },
   { id: 'email', icon: '📧', label: 'Email' },
+  { id: 'aria', icon: '🧠', label: 'ARIA System' },
   { id: 'db', icon: '🗄️', label: 'Database' },
   { id: 'bank', icon: '🏦', label: 'Banco' },
   { id: 'power', icon: '⚡', label: 'PowerGrid' },
@@ -60,7 +62,7 @@ export default function Desktop() {
   const showMissile = state.hackCount >= 3;
 
   return (
-    <div className={`desktop wallpaper-${wallpaper}`}>
+    <div className={`desktop wallpaper-${wallpaper} ${state.ariaGlitchActive ? 'aria-glitch-active' : ''}`}>
       
       {/* Sistema de Papéis de Parede com Cross-Fade Dinâmico */}
       <div className="desktop-wallpapers-container">
@@ -164,6 +166,10 @@ export default function Desktop() {
 
       <Window id="leaderboard" title="RANKING" icon="🏆" width={360} height={400}>
         <Leaderboard />
+      </Window>
+
+      <Window id="aria" title="ARIA Neural System" icon="🧠" width={560} height={420}>
+        <AriaSystem />
       </Window>
 
       {/* Taskbar */}
