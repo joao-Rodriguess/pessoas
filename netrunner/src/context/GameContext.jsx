@@ -51,6 +51,7 @@ const initialState = {
   traceInterval: null,
   isAdmin: false,
   alertMode: false, // trace > 70%
+  isMobileMode: false, // flag se o jogo está rodando em modo celular hacker
 
   // Hacks
   firewall: false,
@@ -114,6 +115,9 @@ function reducer(state, action) {
   switch (action.type) {
     case 'SET_PHASE':
       return { ...state, phase: action.phase };
+
+    case 'SET_MOBILE_MODE':
+      return { ...state, isMobileMode: action.isMobileMode };
 
     case 'INIT_PUZZLES':
       return {
@@ -325,7 +329,7 @@ function reducer(state, action) {
       };
 
     case 'RESET':
-      return { ...initialState };
+      return { ...initialState, isMobileMode: state.isMobileMode };
 
     default:
       return state;

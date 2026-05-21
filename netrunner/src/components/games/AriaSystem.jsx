@@ -132,7 +132,7 @@ export default function AriaSystem() {
             ))}
           </div>
 
-          <div style={{ fontSize: 9, color: 'var(--text-secondary)', marginTop: 8, paddingTop: 4, borderTop: '1px solid rgba(0,212,255,0.1)', fontStyle: 'italic', color: statusColor }}>
+          <div style={{ fontSize: 9, marginTop: 8, paddingTop: 4, borderTop: '1px solid rgba(0,212,255,0.1)', fontStyle: 'italic', color: statusColor }}>
             Status: {getStatusText(state.ariaHealth)}
           </div>
         </div>

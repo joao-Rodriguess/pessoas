@@ -718,15 +718,6 @@ export default function CyberBrowser() {
           {searchSubTab === 'videos' && renderVideosTab(term)}
         </div>
       );
-    }{/* Coluna do Knowledge Graph (Painel de Informações Laterais) */}
-            {renderKnowledgeGraph(term) && (
-              <div className="results-knowledge-col">
-                {renderKnowledgeGraph(term)}
-              </div>
-            )}
-          </div>
-        </div>
-      );
     }
 
     // ── SITE 3: NEXUS CORP — DEFCON-1 Target File ──

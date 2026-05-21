@@ -24,6 +24,15 @@ export default function Terminal() {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    const handleQuickCommand = (e) => {
+      const cmd = e.detail;
+      handleCommand(cmd);
+    };
+    window.addEventListener('terminalQuickCommand', handleQuickCommand);
+    return () => window.removeEventListener('terminalQuickCommand', handleQuickCommand);
+  }, [state, lines]);
+
   const addLine = (text, cls = '') => {
     setLines((prev) => [...prev, { text, cls }]);
   };

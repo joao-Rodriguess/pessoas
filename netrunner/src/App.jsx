@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import Boot from './pages/Boot';
 import Login from './pages/Login';
 import Desktop from './pages/Desktop';
+import MobilePhone from './pages/MobilePhone';
 import Victory from './pages/Victory';
 import GameOver from './pages/GameOver';
 import NarrativeOverlay from './components/NarrativeOverlay';
@@ -23,7 +24,7 @@ function GameRouter() {
     <>
       {state.phase === 'boot' && <Boot />}
       {state.phase === 'login' && <Login />}
-      {state.phase === 'desktop' && <Desktop />}
+      {state.phase === 'desktop' && (state.isMobileMode ? <MobilePhone /> : <Desktop />)}
       {state.phase === 'victory' && <Victory />}
       {state.phase === 'gameover' && <GameOver />}
       {state.currentNarrative && <NarrativeOverlay />}

@@ -5541,4 +5541,786 @@ body {
   color: var(--amber-400);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   HACKER PHONE SIMULATOR (MOBILE MODE)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Container Principal */
+.mobile-phone-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(10, 20, 45, 0.9) 0%, rgba(2, 6, 16, 1) 100%),
+              url('/bg.png') no-repeat center center/cover;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Moldura do Celular em Desktop */
+.phone-frame-wrapper {
+  position: relative;
+  width: 380px;
+  height: 800px;
+  max-width: 95vw;
+  max-height: 95vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.5s var(--ease-out-expo);
+}
+
+.phone-hardware-bezel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #090e16;
+  border: 12px solid #1a2233;
+  border-radius: 48px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8),
+              0 0 0 1px rgba(0, 212, 255, 0.15),
+              0 0 30px rgba(0, 212, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Alto-falante e Câmera Frontal do Celular */
+.phone-earpiece {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: #232c3f;
+  border-radius: 2px;
+  z-index: 200;
+}
+
+.phone-camera-lens {
+  position: absolute;
+  top: 10px;
+  left: calc(50% + 45px);
+  width: 10px;
+  height: 10px;
+  background: #101524;
+  border: 1.5px solid #1f273b;
+  border-radius: 50%;
+  z-index: 200;
+}
+
+/* Botão de Energia Físico Lateral Virtual */
+.phone-hardware-power-btn {
+  position: absolute;
+  right: -16px;
+  top: 140px;
+  width: 4px;
+  height: 60px;
+  background: linear-gradient(180deg, #1f273b, #0c101a);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+  transition: background 0.2s;
+}
+
+.phone-hardware-power-btn:hover {
+  background: var(--cyan-500);
+}
+
+/* Área Interna da Tela do Celular */
+.phone-screen-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #020810;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 36px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TELA DE BLOQUEIO (LOCK SCREEN)
+   ───────────────────────────────────────────────────────────── */
+.phone-lock-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, rgba(5, 12, 30, 0.9) 0%, rgba(2, 6, 16, 0.98) 100%),
+              url('/map.png') no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 50px 24px 40px 24px;
+  animation: lockScreenFade 0.3s var(--ease-in-out);
+}
+
+@keyframes lockScreenFade {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.lock-top-info {
+  text-align: center;
+  font-family: var(--font-display);
+}
+
+.lock-time {
+  font-size: 54px;
+  font-weight: 800;
+  color: var(--cyan-100);
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+  letter-spacing: -1px;
+}
+
+.lock-date {
+  font-size: 11px;
+  color: var(--cyan-400);
+  letter-spacing: 2px;
+  margin-top: 4px;
+  font-weight: bold;
+}
+
+.lock-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: -80px;
+}
+
+.lock-notification {
+  background: rgba(10, 25, 50, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: slideNotif 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes slideNotif {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.3));
+}
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--cyan-300);
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.notif-body {
+  font-size: 9.5px;
+  color: var(--text-primary);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.lock-biometric-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.biometric-fingerprint {
+  width: 68px;
+  height: 68px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 2px solid var(--border-medium);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--cyan-400);
+  transition: all 0.3s;
+  box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1);
+  animation: fingerprintPulse 2.5s infinite;
+}
+
+@keyframes fingerprintPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0px rgba(0, 212, 255, 0.4), inset 0 0 10px rgba(0, 212, 255, 0.1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px 4px rgba(0, 212, 255, 0.2), inset 0 0 20px rgba(0, 212, 255, 0.3); border-color: var(--cyan-400); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(0, 212, 255, 0), inset 0 0 10px rgba(0, 212, 255, 0.1); }
+}
+
+.biometric-fingerprint.scanning {
+  animation: biometricScan 0.4s linear infinite alternate;
+  color: var(--green-glow);
+  border-color: var(--green-glow);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+}
+
+@keyframes biometricScan {
+  from { filter: hue-rotate(0deg) brightness(1); transform: scale(1.05); }
+  to { filter: hue-rotate(90deg) brightness(1.3); transform: scale(0.98); }
+}
+
+.biometric-fingerprint.success {
+  background: rgba(0, 255, 65, 0.15);
+  border-color: var(--green-glow);
+  color: var(--green-glow);
+  box-shadow: 0 0 25px rgba(0, 255, 65, 0.6);
+  transform: scale(1.15);
+  animation: none;
+}
+
+.biometric-label {
+  font-size: 9px;
+  color: var(--cyan-400);
+  letter-spacing: 2px;
+  font-family: var(--font-display);
+  font-weight: bold;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BARRA DE STATUS E CABEÇALHO DO OS MÓVEL
+   ───────────────────────────────────────────────────────────── */
+.phone-os-interface {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 36px; /* espaço para o notch e sensor */
+  position: relative;
+}
+
+.phone-status-bar {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 16px 8px 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+  z-index: 50;
+  gap: 6px;
+}
+
+.status-left, .status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone-status-bar > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.status-signal, .status-vpn, .status-battery, .status-clock {
+  font-size: 8px;
+  color: var(--cyan-300);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.status-vpn {
+  color: var(--green-glow);
+}
+
+.status-battery {
+  letter-spacing: 1px;
+}
+
+/* FBI RASTREAMENTO - INTERFACE PREMIUM MÓVEL */
+.status-fbi-tracker {
+  width: 100%;
+  background: rgba(10, 25, 50, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.3s;
+}
+
+.status-fbi-tracker.alert {
+  background: rgba(30, 0, 5, 0.95);
+  border-color: var(--red-glow);
+  box-shadow: 0 0 10px rgba(255, 23, 68, 0.2);
+}
+
+.fbi-tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8.5px;
+  font-weight: bold;
+  font-family: var(--font-display);
+}
+
+.fbi-tracker-title {
+  color: var(--cyan-400);
+}
+
+.status-fbi-tracker.alert .fbi-tracker-title {
+  color: var(--red-400);
+  animation: blink 1s step-end infinite;
+}
+
+.fbi-tracker-pct {
+  color: var(--cyan-100);
+}
+
+.status-fbi-tracker.alert .fbi-tracker-pct {
+  color: var(--red-glow);
+}
+
+.fbi-tracker-bar-bg {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.fbi-tracker-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease-in-out;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TELA HOME (APP LAUNCHER)
+   ───────────────────────────────────────────────────────────── */
+.phone-home-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 16px 20px 16px;
+  overflow: hidden;
+}
+
+.app-grid-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.app-grid-container::-webkit-scrollbar {
+  width: 0px;
+}
+
+.mobile-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 12px;
+  width: 100%;
+}
+
+.mobile-app-icon-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mobile-app-icon-wrapper:hover {
+  transform: scale(1.12);
+}
+
+.mobile-app-icon-wrapper:active {
+  transform: scale(0.95);
+}
+
+.mobile-app-icon {
+  width: 52px;
+  height: 52px;
+  background: rgba(5, 13, 28, 0.7);
+  border: 1.5px solid;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.app-emoji {
+  font-size: 24px;
+}
+
+.mobile-app-name {
+  font-size: 8.5px;
+  color: var(--text-primary);
+  margin-top: 6px;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-family: var(--font-mono);
+}
+
+/* App Detonador Pulsante Especial */
+.detonator-app.locked {
+  filter: grayscale(1) opacity(0.3);
+  cursor: not-allowed;
+}
+
+.detonator-app.unlocked .mobile-app-icon {
+  animation: detonatorPulse 1.8s infinite;
+}
+
+@keyframes detonatorPulse {
+  0% { box-shadow: 0 0 10px rgba(255, 0, 60, 0.4); }
+  50% { box-shadow: 0 0 25px rgba(255, 0, 60, 0.8); border-color: #ff3366; }
+  100% { box-shadow: 0 0 10px rgba(255, 0, 60, 0.4); }
+}
+
+/* Rodapé HUD na Home */
+.phone-hud-footer {
+  display: flex;
+  background: rgba(10, 25, 50, 0.75);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 10px 6px;
+  gap: 4px;
+  justify-content: space-around;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.hud-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.hud-metric:not(:last-child) {
+  border-right: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.hud-metric-label {
+  font-size: 7.5px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  font-weight: bold;
+}
+
+.hud-metric-value {
+  font-size: 11px;
+  font-weight: bold;
+  font-family: var(--font-display);
+  margin-top: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   APLICATIVO ATIVO EM TELA CHEIA (OVERLAYS)
+   ───────────────────────────────────────────────────────────── */
+.phone-active-app-container {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #020810;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  animation: appOpenSlide 0.35s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+@keyframes appOpenSlide {
+  from { transform: translateY(100vh); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.mobile-app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-app-header {
+  height: 42px;
+  background: rgba(5, 15, 30, 0.95);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.mobile-app-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--cyan-400);
+  transition: all 0.2s;
+  padding: 4px;
+}
+
+.mobile-app-close-btn:hover {
+  transform: scale(1.15);
+}
+
+.mobile-app-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cyan-100);
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
+.mobile-app-body-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.mobile-app-body-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-app-body-content::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 2px;
+}
+
+/* Home Indicator inferior virtual (iOS style) */
+.phone-home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  z-index: 200;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.phone-home-indicator:hover {
+  background: rgba(0, 212, 255, 0.6);
+  transform: translateX(-50%) scaleY(1.5);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TECLADO DE COMANDOS RÁPIDOS MÓVEL (TERMUX)
+   ───────────────────────────────────────────────────────────── */
+.mobile-terminal-shortcuts {
+  background: rgba(5, 12, 26, 0.98);
+  border-top: 1px solid var(--border-subtle);
+  padding: 10px 12px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.shortcuts-title {
+  font-size: 7.5px;
+  color: var(--text-secondary);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.shortcut-btn {
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 4px;
+  color: var(--cyan-300);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: bold;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  box-shadow: 0 0 5px rgba(0, 212, 255, 0.05);
+}
+
+.shortcut-btn:hover {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: var(--cyan-500);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+  color: var(--cyan-100);
+}
+
+.shortcut-btn:active {
+  transform: scale(0.95);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ADAPTAÇÕES DE MINIJOGOS PARA LAYOUTS VERTICAIS
+   ───────────────────────────────────────────────────────────── */
+
+/* CCTV Mobile */
+.app-spycam .cctv-grid, 
+.app-spycam .cctv-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.app-spycam .cctv-screen {
+  width: 100% !important;
+  height: 180px !important;
+}
+
+/* HackTools (NetBreaker) Mobile */
+.app-breaker .hack-target {
+  padding: 10px 8px !important;
+  margin-bottom: 8px;
+}
+
+.app-breaker .hack-target-name {
+  font-size: 11px !important;
+}
+
+.app-breaker .puzzle-box {
+  width: 100% !important;
+  max-width: 320px;
+  padding: 16px !important;
+}
+
+/* Termux (Terminal) Mobile */
+.app-termux .terminal {
+  height: 250px !important;
+  font-size: 11px !important;
+}
+
+/* Banco (BacenHack) Mobile */
+.app-bank .bank-panel {
+  padding: 8px !important;
+}
+
+/* Detonador (MissileControl) Mobile */
+.app-detonator .missile-panel {
+  padding: 6px !important;
+}
+
+.app-detonator .missile-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app-detonator .missile-block {
+  padding: 12px !important;
+}
+
+.app-detonator .missile-countdown {
+  font-size: 32px !important;
+}
+
+.app-detonator .ending-options-grid {
+  grid-template-columns: 1fr !important;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.app-detonator .ending-card {
+  padding: 10px !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FBI HIGH TRACE: ALERTA E GLITCH DO CELULAR HACKER
+   ───────────────────────────────────────────────────────────── */
+.phone-alert-mode .phone-screen-content {
+  animation: phoneShake 0.4s ease-in-out infinite alternate;
+}
+
+.phone-alert-mode .phone-hardware-bezel {
+  border-color: #ef4444;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8),
+              0 0 0 1px rgba(255, 23, 68, 0.3),
+              0 0 35px rgba(255, 23, 68, 0.2);
+}
+
+@keyframes phoneShake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+  20% { transform: translate(-2px, 0px) rotate(0.5deg); }
+  30% { transform: translate(0px, 1px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(0.5deg); }
+  50% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+  60% { transform: translate(-2px, -1px) rotate(0deg); }
+  70% { transform: translate(1px, 1px) rotate(0.5deg); }
+  80% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+  90% { transform: translate(2px, 1px) rotate(0deg); }
+  100% { transform: translate(1px, -1px) rotate(0.5deg); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVIDADE REAL (CELULARES DE VERDADE)
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Remove a moldura do celular virtual em aparelhos reais */
+  .phone-frame-wrapper {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    padding: 0;
+  }
+
+  .phone-hardware-bezel {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .phone-screen-content {
+    border-radius: 0;
+  }
+
+  .phone-earpiece, .phone-camera-lens, .phone-hardware-power-btn {
+    display: none;
+  }
+
+  /* Ajuste no status bar e home bar para compensar notch real dos aparelhos */
+  .phone-os-interface {
+    padding-top: env(safe-area-inset-top, 24px);
+  }
+
+  .phone-home-indicator {
+    bottom: env(safe-area-inset-bottom, 8px);
+    width: 140px;
+  }
+}
+
+
 

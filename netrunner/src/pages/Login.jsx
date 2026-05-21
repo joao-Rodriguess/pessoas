@@ -4,7 +4,7 @@ import { useGame } from '../context/GameContext';
 
 export default function Login() {
   const { loginAnonymous, loginEmail, loginGoogle, user } = useAuth();
-  const { dispatch, loadGameProgress } = useGame();
+  const { state, dispatch, loadGameProgress } = useGame();
   const [mode, setMode] = useState('main'); // main, email, resume
   const [codename, setCodename] = useState('');
   const [email, setEmail] = useState('');
@@ -12,6 +12,12 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
+
+  // Detecção automática de dispositivo móvel na montagem
+  useEffect(() => {
+    const isMobileSize = window.innerWidth <= 768;
+    dispatch({ type: 'SET_MOBILE_MODE', isMobileMode: isMobileSize });
+  }, [dispatch]);
 
   useEffect(() => {
     if (!user) return;
@@ -46,11 +52,16 @@ export default function Login() {
 
   const startNewGame = () => {
     dispatch({ type: 'INIT_PUZZLES' });
+
+    const narrativeText = state.isMobileMode
+      ? 'GHOST, as transmissões indicam que a Nexus-Core e seus financiadores terroristas estão reunidos no bunker subterrâneo agora. Conectei o detonador remoto ao seu celular hacker, mas as frequências ALPHA e BETA estão trancadas nos servidores da corporação. Invada os sistemas deles e ative a detonação antes que o FBI triangule seu sinal móvel!'
+      : 'GHOST, estou conectada. Meu nome é ARIA.\n\nA facção ZERO-DAY te contratou para uma missão crítica: infiltrar os servidores da MegaCorp NEXUS e abortar o Projeto DEFCON-1.\n\nSe não pararmos os mísseis autônomos a tempo, 3 cidades serão destruídas.\n\nComece pelo Terminal e pelo HackTools. Eu vou te guiar.';
+
     dispatch({
       type: 'PUSH_NARRATIVE',
       narrative: {
-        speaker: 'ARIA — I.A. PARCEIRA',
-        text: 'GHOST, estou conectada. Meu nome é ARIA.\n\nA facção ZERO-DAY te contratou para uma missão crítica: infiltrar os servidores da MegaCorp NEXUS e abortar o Projeto DEFCON-1.\n\nSe não pararmos os mísseis autônomos a tempo, 3 cidades serão destruídas.\n\nComece pelo Terminal e pelo HackTools. Eu vou te guiar.',
+        speaker: state.isMobileMode ? 'ARIA — I.A. TÁTICA' : 'ARIA — I.A. PARCEIRA',
+        text: narrativeText,
       },
     });
     dispatch({ type: 'SHOW_NEXT_NARRATIVE' });
@@ -61,11 +72,16 @@ export default function Login() {
     if (!savedProgress) return;
     // Restore game state from saved progress
     dispatch({ type: 'LOAD_SAVED_STATE', data: savedProgress });
+
+    const resumeText = state.isMobileMode
+      ? `GHOST, sinal criptografado restabelecido.\n\nScore: ${savedProgress.score} | Hacks: ${savedProgress.stats?.hackCount || 0}/5 | Rastreamento do FBI: ${Math.round(savedProgress.trace || 0)}%\n\nO bunker deles está logo à frente. Termine de coletar as chaves de acesso!`
+      : `GHOST, recuperei sua sessão anterior.\n\nScore: ${savedProgress.score} | Hacks: ${savedProgress.stats?.hackCount || 0}/5 | Trace: ${Math.round(savedProgress.trace || 0)}%\n\nVamos terminar essa missão!`;
+
     dispatch({
       type: 'PUSH_NARRATIVE',
       narrative: {
-        speaker: 'ARIA — I.A. PARCEIRA',
-        text: `GHOST, recuperei sua sessão anterior.\n\nScore: ${savedProgress.score} | Hacks: ${savedProgress.stats?.hackCount || 0}/5 | Trace: ${Math.round(savedProgress.trace || 0)}%\n\nVamos terminar essa missão!`,
+        speaker: state.isMobileMode ? 'ARIA — I.A. TÁTICA' : 'ARIA — I.A. PARCEIRA',
+        text: resumeText,
       },
     });
     dispatch({ type: 'SHOW_NEXT_NARRATIVE' });
@@ -111,6 +127,24 @@ export default function Login() {
       <div className="login-card">
         <div className="login-logo">NETRUNNER</div>
         <div className="login-subtitle">SHADOW PROTOCOL</div>
+
+        {/* Seletor de Modo de Dispositivo Cyberpunk */}
+        <div className="login-mode-selector" style={{ display: 'flex', gap: 8, justifyContent: 'center', margin: '14px 0 18px 0', padding: '4px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--blue-500)' }}>
+          <button 
+            type="button"
+            onClick={() => dispatch({ type: 'SET_MOBILE_MODE', isMobileMode: false })}
+            style={{ flex: 1, padding: '8px 0', fontSize: 10, background: !state.isMobileMode ? 'rgba(0, 212, 255, 0.15)' : 'transparent', color: !state.isMobileMode ? 'var(--blue-300)' : 'var(--text-muted)', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s', fontWeight: !state.isMobileMode ? 'bold' : 'normal', fontFamily: 'var(--font-mono)', textShadow: !state.isMobileMode ? '0 0 5px rgba(0, 212, 255, 0.4)' : 'none' }}
+          >
+            🖥️ MODO DESKTOP
+          </button>
+          <button 
+            type="button"
+            onClick={() => dispatch({ type: 'SET_MOBILE_MODE', isMobileMode: true })}
+            style={{ flex: 1, padding: '8px 0', fontSize: 10, background: state.isMobileMode ? 'rgba(0, 255, 102, 0.15)' : 'transparent', color: state.isMobileMode ? 'var(--green-400)' : 'var(--text-muted)', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s', fontWeight: state.isMobileMode ? 'bold' : 'normal', fontFamily: 'var(--font-mono)', textShadow: state.isMobileMode ? '0 0 5px rgba(0, 255, 102, 0.4)' : 'none' }}
+          >
+            📱 CELULAR HACKER
+          </button>
+        </div>
 
         {error && (
           <div style={{ color: 'var(--red-400)', fontSize: 11, textAlign: 'center', marginBottom: 12, padding: '8px', background: 'rgba(255,23,68,0.1)', borderRadius: 'var(--radius-sm)' }}>
