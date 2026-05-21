@@ -7,6 +7,8 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signOut as firebaseSignOut,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 
 const AuthContext = createContext(null);
@@ -59,10 +61,24 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') {
-        await signInWithEmailAndPassword(auth, email, password);
+         await signInWithEmailAndPassword(auth, email, password);
       } else {
         throw err;
       }
+    }
+  };
+
+  const loginGoogle = async () => {
+    if (!isFirebaseConfigured) {
+      setUser({ uid: 'offline-google-' + Date.now(), displayName: 'GHOST_GOOGLE', isAnonymous: false, offline: true });
+      return;
+    }
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error('Google Auth error:', err);
+      throw err;
     }
   };
 
@@ -75,7 +91,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginAnonymous, loginEmail, signOut }}>
+    <AuthContext.Provider value={{ user, loading, loginAnonymous, loginEmail, loginGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
 
 export default function Login() {
-  const { loginAnonymous, loginEmail, user } = useAuth();
+  const { loginAnonymous, loginEmail, loginGoogle, user } = useAuth();
   const { dispatch, loadGameProgress } = useGame();
   const [mode, setMode] = useState('main'); // main, email, resume
   const [codename, setCodename] = useState('');
@@ -72,6 +72,21 @@ export default function Login() {
     setLoading(false);
   };
 
+  const handleGoogle = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await loginGoogle();
+      const isOffline = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === 'demo-key';
+      if (isOffline) {
+        startGame();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  };
+
   const handleEmail = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -125,6 +140,17 @@ export default function Login() {
               onClick={() => setMode('email')}
             >
               📧 LOGIN COM EMAIL (salva progresso)
+            </button>
+
+            <button
+              className="login-btn login-btn-google"
+              onClick={handleGoogle}
+              disabled={loading}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" style={{ fill: 'currentColor' }}>
+                <path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C17.955 2.192 15.34 1 12.24 1 6.033 1 12.24s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.986 0-.74-.08-1.3-.176-1.859H12.24z"/>
+              </svg>
+              CONECTAR COM GOOGLE
             </button>
           </>
         ) : mode === 'resume' ? (

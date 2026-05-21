@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, useCallback, useEffect, useRef, useState } from 'react';
-import { db, isFirebaseConfigured } from '../firebase';
-import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { rtdb, isFirebaseConfigured } from '../firebase';
+import { ref, set, get, push, onValue, query, orderByChild, limitToLast } from 'firebase/database';
 
 const GameContext = createContext(null);
 
@@ -297,16 +297,23 @@ export function GameProvider({ children }) {
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     try {
-      const q = query(collection(db, 'leaderboard'), orderBy('score', 'desc'), limit(10));
-      const unsub = onSnapshot(q, (snap) => {
-        const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        dispatch({ type: 'SET_LEADERBOARD', data });
+      const dbRef = ref(rtdb, 'leaderboard');
+      const q = query(dbRef, orderByChild('score'), limitToLast(10));
+      const unsub = onValue(q, (snap) => {
+        const scores = [];
+        snap.forEach((child) => {
+          scores.push({ id: child.key, ...child.val() });
+        });
+        // Realtime Database queries return in ascending order.
+        // We reverse to get descending order (highest score first).
+        scores.reverse();
+        dispatch({ type: 'SET_LEADERBOARD', data: scores });
       }, (err) => {
         console.warn('Leaderboard error:', err);
       });
-      return unsub;
+      return () => unsub();
     } catch (err) {
-      console.warn('Firestore not available:', err);
+      console.warn('Realtime Database not available:', err);
     }
   }, []);
 
@@ -315,7 +322,7 @@ export function GameProvider({ children }) {
     if (!isFirebaseConfigured || !currentUser || currentUser.offline) return null;
     try {
       setSaveStatus('saving');
-      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userRef = ref(rtdb, 'users/' + currentUser.uid);
       const gameProgressData = {
         displayName: currentUser.displayName || 'GHOST',
         score: currentState.score,
@@ -335,9 +342,9 @@ export function GameProvider({ children }) {
           missileAborted: currentState.missileAborted,
         },
         powerups: currentState.powerups,
-        lastSaved: serverTimestamp(),
+        lastSaved: Date.now(),
       };
-      await setDoc(userDocRef, gameProgressData, { merge: true });
+      await set(userRef, gameProgressData);
       setSaveStatus('saved');
       // Reset status after 2 seconds
       setTimeout(() => setSaveStatus('ready'), 2000);
@@ -351,10 +358,10 @@ export function GameProvider({ children }) {
   const loadGameProgress = useCallback(async (currentUser) => {
     if (!isFirebaseConfigured || !currentUser || currentUser.offline) return null;
     try {
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      const docSnap = await getDoc(userDocRef);
-      if (docSnap.exists()) {
-        return docSnap.data();
+      const userRef = ref(rtdb, 'users/' + currentUser.uid);
+      const snap = await get(userRef);
+      if (snap.exists()) {
+        return snap.val();
       }
     } catch (err) {
       console.warn('Game load error:', err);
@@ -366,10 +373,10 @@ export function GameProvider({ children }) {
   const logAchievementUnlock = useCallback(async (currentUser, achievementId) => {
     if (!isFirebaseConfigured || !currentUser || currentUser.offline) return;
     try {
-      const achievementsCollRef = collection(db, 'users', currentUser.uid, 'achievements');
-      await addDoc(achievementsCollRef, {
+      const achievementsRef = ref(rtdb, `users/${currentUser.uid}/achievements`);
+      await push(achievementsRef, {
         achievementId,
-        unlockedAt: serverTimestamp(),
+        unlockedAt: Date.now(),
         score: state.score,
       });
     } catch (err) {
@@ -380,14 +387,15 @@ export function GameProvider({ children }) {
   const submitScore = useCallback(async (submitUser) => {
     if (!isFirebaseConfigured || !submitUser) return;
     try {
-      await addDoc(collection(db, 'leaderboard'), {
+      const leaderboardRef = ref(rtdb, 'leaderboard');
+      await push(leaderboardRef, {
         uid: submitUser.uid,
         name: submitUser.displayName || 'GHOST',
         score: state.score,
         achievements: state.achievements.length,
         hacks: state.hackCount,
         trace: state.trace,
-        timestamp: serverTimestamp(),
+        timestamp: Date.now(),
       });
     } catch (err) {
       console.warn('Score submit error:', err);
