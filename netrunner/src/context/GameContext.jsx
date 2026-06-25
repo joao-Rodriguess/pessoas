@@ -51,6 +51,7 @@ const initialState = {
   traceInterval: null,
   isAdmin: false,
   alertMode: false, // trace > 70%
+  isMobileMode: false, // flag se o jogo está rodando em modo celular hacker
 
   // Hacks
   firewall: false,
@@ -87,6 +88,7 @@ const initialState = {
 
   // Windows
   openWindows: [],
+  minimizedWindows: [],
   focusedWindow: null,
 
   // Narrative
@@ -101,12 +103,21 @@ const initialState = {
 
   // Game Over flag
   gameOver: false,
+
+  // ARIA & DEFCON expansion states
+  ariaHealth: 100,
+  ariaGlitchActive: false,
+  webbAssistantHacked: false,
+  selectedEnding: null,
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_PHASE':
       return { ...state, phase: action.phase };
+
+    case 'SET_MOBILE_MODE':
+      return { ...state, isMobileMode: action.isMobileMode };
 
     case 'INIT_PUZZLES':
       return {
@@ -179,24 +190,55 @@ function reducer(state, action) {
 
     case 'OPEN_WINDOW': {
       if (state.openWindows.includes(action.id)) {
-        return { ...state, focusedWindow: action.id };
+        return {
+          ...state,
+          minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
+          focusedWindow: action.id
+        };
       }
       return {
         ...state,
         openWindows: [...state.openWindows, action.id],
+        minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
         focusedWindow: action.id,
       };
     }
 
-    case 'CLOSE_WINDOW':
+    case 'CLOSE_WINDOW': {
+      const remaining = state.openWindows.filter((w) => w !== action.id);
+      const newMinimized = state.minimizedWindows.filter((w) => w !== action.id);
       return {
         ...state,
-        openWindows: state.openWindows.filter((w) => w !== action.id),
-        focusedWindow: state.openWindows.filter((w) => w !== action.id).slice(-1)[0] || null,
+        openWindows: remaining,
+        minimizedWindows: newMinimized,
+        focusedWindow: remaining.filter((w) => !newMinimized.includes(w)).slice(-1)[0] || null,
       };
+    }
 
     case 'FOCUS_WINDOW':
-      return { ...state, focusedWindow: action.id };
+      return {
+        ...state,
+        minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
+        focusedWindow: action.id
+      };
+
+    case 'MINIMIZE_WINDOW':
+      return {
+        ...state,
+        minimizedWindows: state.minimizedWindows.includes(action.id)
+          ? state.minimizedWindows
+          : [...state.minimizedWindows, action.id],
+        focusedWindow: state.focusedWindow === action.id
+          ? (state.openWindows.filter((w) => w !== action.id && !state.minimizedWindows.includes(w)).slice(-1)[0] || null)
+          : state.focusedWindow
+      };
+
+    case 'RESTORE_WINDOW':
+      return {
+        ...state,
+        minimizedWindows: state.minimizedWindows.filter((w) => w !== action.id),
+        focusedWindow: action.id
+      };
 
     case 'PUSH_NARRATIVE':
       return { ...state, narrativeQueue: [...state.narrativeQueue, action.narrative] };
@@ -252,12 +294,46 @@ function reducer(state, action) {
       };
     }
 
+    case 'DEGRADE_ARIA': {
+      if (state.gameOver || state.missileAborted) return state;
+      const newHealth = Math.max(0, state.ariaHealth - action.amount);
+      const glitchActive = newHealth < 60;
+      return { ...state, ariaHealth: newHealth, ariaGlitchActive: glitchActive };
+    }
+
+    case 'RESTORE_ARIA': {
+      const newTrace = Math.min(100, state.trace + 15);
+      const newAlert = newTrace >= 70;
+      const isGameOver = newTrace >= 100;
+      return {
+        ...state,
+        ariaHealth: 100,
+        ariaGlitchActive: false,
+        trace: newTrace,
+        alertMode: newAlert || state.alertMode,
+        ...(isGameOver && { phase: 'gameover', gameOver: true })
+      };
+    }
+
+    case 'SET_WEBB_HACKED':
+      return { ...state, webbAssistantHacked: true };
+
+    case 'SELECT_ENDING':
+      return {
+        ...state,
+        selectedEnding: action.ending,
+        missileAborted: true,
+        countdown: null,
+        phase: 'victory',
+        gameOver: true
+      };
+
     case 'RESET':
-      return { ...initialState };
+      return { ...initialState, isMobileMode: state.isMobileMode };
 
     default:
       return state;
-  }
+    }
 }
 
 export function GameProvider({ children }) {
@@ -274,7 +350,7 @@ export function GameProvider({ children }) {
       if (traceRef.current) clearInterval(traceRef.current);
       traceRef.current = setInterval(() => {
         if (!state.proxyActive) {
-          const amount = state.vpnActive ? 0.5 : 1;
+          const amount = state.vpnActive ? 0.02 : 0.05;
           dispatch({ type: 'ADD_TRACE', amount });
         }
       }, 1000);
@@ -292,6 +368,18 @@ export function GameProvider({ children }) {
     }
     return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
   }, [state.countdown, state.gameOver]);
+
+  // ARIA health decay timer
+  const ariaDecayRef = useRef(null);
+  useEffect(() => {
+    if (state.phase === 'desktop' && !state.gameOver && !state.missileAborted) {
+      if (ariaDecayRef.current) clearInterval(ariaDecayRef.current);
+      ariaDecayRef.current = setInterval(() => {
+        dispatch({ type: 'DEGRADE_ARIA', amount: 3 });
+      }, 10000); // 3% a cada 10 segundos
+    }
+    return () => { if (ariaDecayRef.current) clearInterval(ariaDecayRef.current); };
+  }, [state.phase, state.gameOver, state.missileAborted]);
 
   // Leaderboard listener
   useEffect(() => {

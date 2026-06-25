@@ -1,13 +1,15 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 export default function Window({ id, title, icon, children, width = 550, height = 400 }) {
   const { state, dispatch } = useGame();
+  const [isMaximized, setIsMaximized] = useState(false);
   const windowRef = useRef(null);
   const dragRef = useRef({ dragging: false, startX: 0, startY: 0 });
 
   const isOpen = state.openWindows.includes(id);
   const isFocused = state.focusedWindow === id;
+  const isMinimized = state.minimizedWindows?.includes(id) || false;
 
   // Random initial position
   const posRef = useRef({
@@ -17,6 +19,7 @@ export default function Window({ id, title, icon, children, width = 550, height 
 
   const handleMouseDown = useCallback((e) => {
     if (e.target.closest('.window-btn')) return;
+    if (isMaximized) return; // Não permite arrastar se maximizada
     dispatch({ type: 'FOCUS_WINDOW', id });
     dragRef.current = {
       dragging: true,
@@ -42,7 +45,7 @@ export default function Window({ id, title, icon, children, width = 550, height 
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [dispatch, id]);
+  }, [dispatch, id, isMaximized]);
 
   const handleFocus = useCallback(() => {
     dispatch({ type: 'FOCUS_WINDOW', id });
@@ -52,6 +55,14 @@ export default function Window({ id, title, icon, children, width = 550, height 
     dispatch({ type: 'CLOSE_WINDOW', id });
   }, [dispatch, id]);
 
+  const handleMinimize = useCallback(() => {
+    dispatch({ type: 'MINIMIZE_WINDOW', id });
+  }, [dispatch, id]);
+
+  const handleToggleMaximize = useCallback(() => {
+    setIsMaximized((prev) => !prev);
+  }, []);
+
   if (!isOpen) return null;
 
   const zIndex = isFocused ? 100 : state.openWindows.indexOf(id) + 10;
@@ -59,14 +70,15 @@ export default function Window({ id, title, icon, children, width = 550, height 
   return (
     <div
       ref={windowRef}
-      className={`window ${isFocused ? 'focused' : ''}`}
+      className={`window ${isFocused ? 'focused' : ''} ${isMaximized ? 'maximized' : ''} ${isMinimized ? 'minimized' : ''}`}
       style={{
-        width,
-        height,
-        left: posRef.current.x,
-        top: posRef.current.y,
+        width: isMaximized ? '100vw' : width,
+        height: isMaximized ? 'calc(100vh - 48px)' : height,
+        left: isMaximized ? 0 : posRef.current.x,
+        top: isMaximized ? 0 : posRef.current.y,
         zIndex,
-        animation: 'winOpen 0.25s var(--ease-out-expo)',
+        animation: isMinimized ? 'none' : 'winOpen 0.25s var(--ease-out-expo)',
+        display: isMinimized ? 'none' : 'flex',
       }}
       onMouseDown={handleFocus}
     >
@@ -82,9 +94,15 @@ export default function Window({ id, title, icon, children, width = 550, height 
           {title}
         </span>
         <div className="window-controls">
-          <button className="window-btn window-btn-minimize" onClick={() => {}} />
-          <button className="window-btn window-btn-maximize" onClick={() => {}} />
-          <button className="window-btn window-btn-close" onClick={handleClose} />
+          <button className="window-btn window-btn-minimize" title="Minimizar" onClick={handleMinimize}>
+            —
+          </button>
+          <button className="window-btn window-btn-maximize" title={isMaximized ? 'Restaurar' : 'Maximizar'} onClick={handleToggleMaximize}>
+            {isMaximized ? '🗗' : '🗖'}
+          </button>
+          <button className="window-btn window-btn-close" title="Fechar" onClick={handleClose}>
+            ✕
+          </button>
         </div>
       </div>
       <div className="window-body">

@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import Window from '../components/Window';
 import Taskbar from '../components/Taskbar';
@@ -16,12 +17,17 @@ import Satellite from '../components/games/Satellite';
 import MissileControl from '../components/games/MissileControl';
 import Calculator from '../components/games/Calculator';
 import Notepad from '../components/games/Notepad';
+import CyberBrowser from '../components/games/CyberBrowser';
+import ControlPanel from '../components/games/ControlPanel';
+import AriaSystem from '../components/games/AriaSystem';
 
 const DESKTOP_ICONS = [
+  { id: 'browser', icon: '🌐', label: 'NetChrome' },
+  { id: 'files', icon: '📁', label: 'Arquivos' },
   { id: 'terminal', icon: '💻', label: 'Terminal' },
   { id: 'hack', icon: '👾', label: 'HackTools' },
   { id: 'email', icon: '📧', label: 'Email' },
-  { id: 'files', icon: '📁', label: 'Arquivos' },
+  { id: 'aria', icon: '🧠', label: 'ARIA System' },
   { id: 'db', icon: '🗄️', label: 'Database' },
   { id: 'bank', icon: '🏦', label: 'Banco' },
   { id: 'power', icon: '⚡', label: 'PowerGrid' },
@@ -29,11 +35,24 @@ const DESKTOP_ICONS = [
   { id: 'cctv', icon: '📹', label: 'CCTV' },
   { id: 'calc', icon: '🔢', label: 'Calculadora' },
   { id: 'note', icon: '📝', label: 'Notas' },
+  { id: 'settings', icon: '⚙️', label: 'Painel de Controle' },
   { id: 'leaderboard', icon: '🏆', label: 'Ranking' },
 ];
 
 export default function Desktop() {
   const { state, dispatch } = useGame();
+  const [wallpaper, setWallpaper] = useState(
+    localStorage.getItem('desktop-wallpaper') || 'cyberpunk'
+  );
+
+  // Escutar mudança de wallpaper reativamente do ControlPanel.jsx
+  useEffect(() => {
+    const handleWallpaperChange = (e) => {
+      setWallpaper(e.detail);
+    };
+    window.addEventListener('wallpaperChanged', handleWallpaperChange);
+    return () => window.removeEventListener('wallpaperChanged', handleWallpaperChange);
+  }, []);
 
   const openWindow = (id) => {
     dispatch({ type: 'OPEN_WINDOW', id });
@@ -43,11 +62,18 @@ export default function Desktop() {
   const showMissile = state.hackCount >= 3;
 
   return (
-    <div className="desktop">
-      <div className={`desktop-bg ${state.alertMode ? 'alert-mode' : ''}`} />
+    <div className={`desktop wallpaper-${wallpaper} ${state.ariaGlitchActive ? 'aria-glitch-active' : ''}`}>
+      
+      {/* Sistema de Papéis de Parede com Cross-Fade Dinâmico */}
+      <div className="desktop-wallpapers-container">
+        <div className={`desktop-bg bg-cyberpunk ${wallpaper === 'cyberpunk' ? 'active' : ''} ${state.alertMode ? 'alert-mode' : ''}`} />
+        <div className={`desktop-bg bg-tokyo ${wallpaper === 'tokyo' ? 'active' : ''}`} />
+        <div className={`desktop-bg bg-emergency ${wallpaper === 'emergency' ? 'active' : ''}`} />
+        {wallpaper === 'matrix' && <MatrixRain />}
+      </div>
 
-      {/* Floating particles */}
-      <ParticlesBackground />
+      {/* Floating particles (somente se não for a Matrix Rain que já enche a tela) */}
+      {wallpaper !== 'matrix' && <ParticlesBackground />}
 
       {/* Trace bar at top */}
       <TraceBar />
@@ -81,7 +107,15 @@ export default function Desktop() {
         </div>
       </div>
 
-      {/* Windows */}
+      {/* Windows do Windows Operating System */}
+      <Window id="browser" title="NetChrome - Google Search" icon="🌐" width={920} height={580}>
+        <CyberBrowser />
+      </Window>
+
+      <Window id="files" title="NetExplorer" icon="📁" width={680} height={450}>
+        <FileSystem />
+      </Window>
+
       <Window id="terminal" title="TERMINAL" icon="💻" width={680} height={400}>
         <Terminal />
       </Window>
@@ -92,10 +126,6 @@ export default function Desktop() {
 
       <Window id="email" title="EMAIL" icon="📧" width={580} height={420}>
         <Email />
-      </Window>
-
-      <Window id="files" title="ARQUIVOS" icon="📁" width={520} height={420}>
-        <FileSystem />
       </Window>
 
       <Window id="db" title="DATABASE" icon="🗄️" width={600} height={450}>
@@ -130,14 +160,81 @@ export default function Desktop() {
         <Notepad />
       </Window>
 
+      <Window id="settings" title="Painel de Controle" icon="⚙️" width={660} height={500}>
+        <ControlPanel />
+      </Window>
+
       <Window id="leaderboard" title="RANKING" icon="🏆" width={360} height={400}>
         <Leaderboard />
+      </Window>
+
+      <Window id="aria" title="ARIA Neural System" icon="🧠" width={560} height={420}>
+        <AriaSystem />
       </Window>
 
       {/* Taskbar */}
       <Taskbar />
     </div>
   );
+}
+
+// ── Matrix Rain Wallpaper Component ──
+function MatrixRain() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const fontSize = 14;
+    const columns = Math.floor(width / fontSize);
+    const yPositions = Array(columns).fill(0).map(() => Math.random() * -height);
+
+    const matrixChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ";
+
+    const draw = () => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, width, height);
+
+      // Pegar cor do tema ativo para pintar a chuva Matrix
+      const activeColor = getComputedStyle(document.documentElement).getPropertyValue('--cyan-500').trim() || '#00ff66';
+      ctx.fillStyle = activeColor;
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < yPositions.length; i++) {
+        const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+        const x = i * fontSize;
+        const y = yPositions[i];
+
+        ctx.fillText(char, x, y);
+
+        if (y > height && Math.random() > 0.98) {
+          yPositions[i] = 0;
+        } else {
+          yPositions[i] += fontSize;
+        }
+      }
+    };
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const interval = setInterval(draw, 40);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="matrix-rain-canvas" />;
 }
 
 // ── Particles Background ──
